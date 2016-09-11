@@ -39,4 +39,25 @@ void TopWall::BoundaryCondition(VelSite **sites, VelSite **_sites)
     }
 }
 
+void TopWall::TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
+				double **T, double ***u)
+{
+  int x,y; double u0[2] = {0.0, 0.0};
+  double Tcold = 0.0;
+  double TT, pp, uu[2];
+  for (int i=0;i<nbNodes;i++)
+    {
+      x = nodes[i][0]; y = nodes[i][1];
+
+      thermalSites[x][y-1].computeRhoAndU(TT);
+      velSites[x][y-1].computeRhoAndU(pp, uu);
+      
+      for (int k=0;k<4;k++)
+	{
+	  thermalSites[x][y].f[k] = TT/4. + thermalSites[x][y-1].f[k]
+	    - thermalSites[x][y-1].fEq(k,TT,uu);
+	}
+    }
+}
+
 
