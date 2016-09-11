@@ -15,16 +15,6 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
   omega[1] = omega_[1];
   coef_force = coef_force_;
 
-  int noz = 8;
-  double u0[2] = {0.1, 0.0};
-  
-  w = new Walls(d);
-  hw = new HotWall(d);
-  cw = new ColdWall(d);
-  I = new Inlet(noz, dims, u0);
-  // tw = new TopWall(d);
-  // bw = new BottomWall(d);
-
   velSites = new VelSite*[dims[0]];
   velSites_ = new VelSite*[dims[0]];
 
@@ -61,6 +51,10 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
       for (int y=0; y<dims[1]; y++)
 	u[x][y] = new double[2];
     }
+
+  w = new TopWall(d);
+  topo = new Topography(d, h, period, velSites, velSites_);
+  
   generateGeometry();
 }
 
@@ -92,24 +86,23 @@ void LatticeBoltzmann::update()
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
-		  // do collision and streaming in one loop
+
 		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
 		  thermalSites[x][y].computeRhoAndU(T[x][y]);
+		  
 		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y]);
 		  thermalSites[x][y].collide(T[x][y], u[x][y]);
-		  // if ( y == 0)
-		  //   {cout << T[x][y];
-		  //   }
+		  
 		  streamToNeighbors(x, y);
 		}
 	}
 
 	w->BoundaryCondition(velSites, velSites_);
-	hw->BoundaryCondition(thermalSites_);
-	cw->BoundaryCondition(thermalSites_);
-	//I->BoundaryCondition(velSites_);
-	// tw->BoundaryCondition(velSites_, thermalSites_, T, u);
-	// bw->BoundaryCondition(velSites_, thermalSites_, T, u);
+	topo->FreeSlipBC(thermalSites_);
+
+	w->temperatureBC(velSites_, thermalSites_, T, u);
+	topo->temperatureBC(velSites_, thermalSites_, T, u);
+
 
 	swapT = thermalSites;
 	thermalSites = thermalSites_;
@@ -186,6 +179,5 @@ LatticeBoltzmann::~LatticeBoltzmann()
   delete velSites_;
   
   delete w;
-  delete cw;
-  delete hw;
+  delete topo;
 }
