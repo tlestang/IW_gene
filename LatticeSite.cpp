@@ -39,6 +39,15 @@ void LatticeSite::setType(SiteType t)
 	type = t;
 }
 
+bool LatticeSite::isSolid()
+{
+  return type == Solid;
+}
+bool LatticeSite::isFluid()
+{
+  return type == Fluid;
+}
+
 VelSite::VelSite()
 {
   q = 9;

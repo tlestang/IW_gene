@@ -86,7 +86,9 @@ void LatticeBoltzmann::update()
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
-
+		  if(sites[x][y].isFluid())
+		    {
+		      
 		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
 		  thermalSites[x][y].computeRhoAndU(T[x][y]);
 		  
@@ -94,6 +96,7 @@ void LatticeBoltzmann::update()
 		  thermalSites[x][y].collide(T[x][y], u[x][y]);
 		  
 		  streamToNeighbors(x, y);
+		    }
 		}
 	}
 

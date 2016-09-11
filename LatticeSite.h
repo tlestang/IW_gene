@@ -4,7 +4,7 @@
 class LatticeSite
 {
 	public:
-		enum SiteType {Fluid = 'f', Boundary = 'b', Null = 'n'};
+		enum SiteType {Fluid = 'f', Solid = 'b', Null = 'n'};
 
 		double f[9];
 
@@ -20,7 +20,7 @@ class LatticeSite
 		virtual void computeRhoAndU(double& rho, double u[2]) = 0;
 		virtual void collide(double& rho, double u[2]) = 0;
 		virtual void init(SiteType, double, double*, double, double) = 0;
-		bool isBoundary();
+		bool isSolid();
 		bool isFluid();
 		void setType(SiteType t);
 };
