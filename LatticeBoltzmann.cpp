@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #include "LatticeBoltzmann.h"
 #include "LatticeSite.h"
@@ -52,10 +53,12 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
 	u[x][y] = new double[2];
     }
 
-  w = new TopWall(d);
-  topo = new Topography(d, h, period, velSites, velSites_);
-  
   generateGeometry();
+  
+  w = new TopWall(d);
+  topo = new Topography(d, floor(dims[1]/10), dims[0], velSites, velSites_);
+  
+
 }
 
 
@@ -86,7 +89,7 @@ void LatticeBoltzmann::update()
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
-		  if(sites[x][y].isFluid())
+		  if(velSites[x][y].isFluid())
 		    {
 		      
 		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
@@ -101,10 +104,10 @@ void LatticeBoltzmann::update()
 	}
 
 	w->BoundaryCondition(velSites, velSites_);
-	topo->FreeSlipBC(thermalSites_);
+	topo->FreeSlipBC(velSites, velSites_);
 
-	w->temperatureBC(velSites_, thermalSites_, T, u);
-	topo->temperatureBC(velSites_, thermalSites_, T, u);
+	w->TemperatureBC(velSites_, thermalSites_, T, u);
+	topo->TemperatureBC(velSites_, thermalSites_, T, u);
 
 
 	swapT = thermalSites;
@@ -126,9 +129,9 @@ void LatticeBoltzmann::generateGeometry()
 		{
 			if (x == 0 || x == dims[0]-1 || y == 0 || y == dims[1]-1)
 			{
-			  velSites[x][y].init(LatticeSite::Boundary, 1.0, u,
+			  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
 					      omega[0], coef_force);
-			  velSites_[x][y].init(LatticeSite::Boundary, 1.0, u,
+			  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
 					       omega[0], coef_force);
 			}
 			else
@@ -140,9 +143,9 @@ void LatticeBoltzmann::generateGeometry()
 			}
 			if (y==0)
 			  {
-			    thermalSites[x][y].init(LatticeSite::Boundary, 1.0, u,
+			    thermalSites[x][y].init(LatticeSite::Fluid, 1.0, u,
 						    omega[1], coef_force);
-			    thermalSites_[x][y].init(LatticeSite::Boundary, 1.0, u,
+			    thermalSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
 						     omega[1], coef_force);
 			    T[x][y] = 1.0;
 			  }

@@ -11,7 +11,7 @@ class LatticeBoltzmann
 		double omega[2];
 		double coef_force;
 		
-		double **p;
+		double **rho;
 		double **T;
 		double ***u;
 
@@ -21,9 +21,9 @@ class LatticeBoltzmann
 		ThermalSite **thermalSites;
 		ThermalSite **thermalSites_;
 
-		Walls *w;
-		HotWall *hw;
-		ColdWall *cw;
+		TopWall *w;
+		Topography *topo;
+
 		/* TopWall *tw; */
 		/* BottomWall *bw; */
 

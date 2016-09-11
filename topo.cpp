@@ -34,6 +34,10 @@ Topography::Topography(const int d[2], int h, int period,
 
 }
 
+void Topography::BoundaryCondition()
+{
+}
+
 void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 {
   int x,y;
