@@ -15,10 +15,13 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
   omega[1] = omega_[1];
   coef_force = coef_force_;
 
+  int noz = 8;
   double u0[2] = {0.1, 0.0};
+  
   w = new Walls(d);
   hw = new HotWall(d);
   cw = new ColdWall(d);
+  I = new Inlet(noz, dims, u0);
   // tw = new TopWall(d);
   // bw = new BottomWall(d);
 
@@ -40,14 +43,14 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
       thermalSites_[i] = new ThermalSite[dims[1]];
     }
   
-  // allocate memory for p
-  p = new double*[dims[0]];
-  for (int x=0; x<dims[0]; x++)
-    p[x] = new double[dims[1]];
-  // allocate memory for T
+  // allocate memory for T and rho
   T = new double*[dims[0]];
   for (int x=0; x<dims[0]; x++)
     T[x] = new double[dims[1]];
+
+    rho = new double*[dims[0]];
+  for (int x=0; x<dims[0]; x++)
+    rho[x] = new double[dims[1]];
 	
   // allocate memory for velocity
   u = new double**[dims[0]];
@@ -90,8 +93,9 @@ void LatticeBoltzmann::update()
 		for (int y=0; y<dims[1]; y++)
 		{
 		  // do collision and streaming in one loop
-
-		  velSites[x][y].collide(p[x][y], T[x][y], u[x][y]);
+		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
+		  thermalSites[x][y].computeRhoAndU(T[x][y]);
+		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y]);
 		  thermalSites[x][y].collide(T[x][y], u[x][y]);
 		  // if ( y == 0)
 		  //   {cout << T[x][y];
@@ -103,6 +107,7 @@ void LatticeBoltzmann::update()
 	w->BoundaryCondition(velSites, velSites_);
 	hw->BoundaryCondition(thermalSites_);
 	cw->BoundaryCondition(thermalSites_);
+	//I->BoundaryCondition(velSites_);
 	// tw->BoundaryCondition(velSites_, thermalSites_, T, u);
 	// bw->BoundaryCondition(velSites_, thermalSites_, T, u);
 
@@ -118,7 +123,7 @@ void LatticeBoltzmann::update()
 void LatticeBoltzmann::generateGeometry()
 {
 	double u[2] = {0, 0};
-	double u0[2] = {0.1, 0.0};
+
 	for (int x=0; x<dims[0]; x++)
 	{
 		for (int y=0; y<dims[1]; y++)
@@ -132,9 +137,9 @@ void LatticeBoltzmann::generateGeometry()
 			}
 			else
 			{
-			  velSites[x][y].init(LatticeSite::Fluid, 1.0, u0,
+			  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
 					      omega[0], coef_force);
-			  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u0,
+			  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
 					       omega[0], coef_force);
 			}
 			if (y==0)
@@ -166,10 +171,10 @@ void LatticeBoltzmann::generateGeometry()
 }
 
 void LatticeBoltzmann::getDensityAndVelocityField(double **&tp,
-						  double **&pp, double ***&up)
+						  double **&rp, double ***&up)
 {
   tp = T;
-  pp = p;
+  rp = rho;
   up = u;
 }
 	     

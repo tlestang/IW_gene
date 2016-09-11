@@ -8,16 +8,11 @@ const int VelSite::e[9][2] = {{0,0}, {1,0}, {0,1}, {-1,0}, {0,-1}, {1,1}, {-1,1}
 const double VelSite::w[9] = {4.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0};
 
 
-const double VelSite::lbda = 1./3.; const double VelSite::gma = 1./12.; 
-const double VelSite::sigma = 5./12.;
-const double VelSite::pterm[9] = {-4.*sigma, lbda, lbda, lbda, lbda, gma, gma, gma, gma};
-
-
 LatticeSite::LatticeSite()
 {
 
 }
-void VelSite::init(SiteType t, double p, double u[2],
+void VelSite::init(SiteType t, double rho, double u[2],
 		   double om, double coef_force_)
 {
 	setType(t);
@@ -26,7 +21,7 @@ void VelSite::init(SiteType t, double p, double u[2],
 	coef_force = coef_force_;
 	
 	for (int k=0; k<q; k++)
-		f[k] = fEq(k, p, u);
+		f[k] = fEq(k, rho, u);
 }
 
 void ThermalSite::init(SiteType t, double T, double u[2],
@@ -56,13 +51,12 @@ ThermalSite::ThermalSite()
 }
 
 
-void VelSite::computeRhoAndU(double& p, double u[2])
+void VelSite::computeRhoAndU(double& rho, double u[2])
 {
-  double u2;
-  p = 0;
+  rho = 0;
 
   for (int k=0; k<q; k++)
-    {p += f[k];}
+    {rho += f[k];}
 
   u[0] = 0;
   u[1] = 0;
@@ -72,12 +66,11 @@ void VelSite::computeRhoAndU(double& p, double u[2])
       u[0] += f[k]*e[k][0];
       u[1] += f[k]*e[k][1];
     }
-  u2 = u[0]*u[0] + u[1]*u[1];
-  
-  p = (1./(4.*sigma))*(p - 1.5*w[0]*u2);
+  u[0] /= rho;
+  u[1] /= rho;
 }
 
-void ThermalSite::computeRhoAndU(double & p, double u[2])
+void ThermalSite::computeRhoAndU(double & rho, double u[2])
 {
 }
 void ThermalSite::computeRhoAndU(double &T)
@@ -87,12 +80,12 @@ void ThermalSite::computeRhoAndU(double &T)
     T += f[k];
 }
 
-double VelSite::fEq(int k, double p, double u[2])
+double VelSite::fEq(int k, double rho, double u[2])
 {
   double u2 = u[0]*u[0] + u[1]*u[1];
   double eu = e[k][0]*u[0] + e[k][1]*u[1];
-  
-  return p*pterm[k] + w[k] * (3.0*eu + 4.5*eu*eu - 1.5*u2);
+
+  return rho * w[k] * (1.0 + 3.0*eu + 4.5*eu*eu - 1.5*u2);
 }
 double ThermalSite::fEq(int k, double T, double u[2])
 {
@@ -102,24 +95,26 @@ double ThermalSite::fEq(int k, double T, double u[2])
 }
 
 
-void VelSite::collide(double& p, double u[2])
+void VelSite::collide(double& rho, double u[2])
 {
 }
-void VelSite::collide(double& p, double T, double u[2])
+void VelSite::collide(double& rho, double T, double u[2])
 {
-  computeRhoAndU(p, u);
+  //computeRhoAndU(rho, u);
 
   for (int k=0; k<q; k++)
     {
       //Compute the force from Boussinesq approx
-      //force = - 3.*w[k]*coef_force*(T-T0)*e[k][1];
-      f[k] = f[k]*omega1 + omega*fEq(k, p, u); //+ force;
+      force =  3.*w[k]*rho*coef_force*(T-T0)*e[k][1];
+      f[k]= f[k]*omega1 +fEq(k,rho,u)*omega +force;	  
+      // f[k] *= (1.0-omega);
+      // f[k] += omega*fEq(k, rho, u);
     }
   
 }
 void ThermalSite::collide(double& T, double u[2])
 {
-		computeRhoAndU(T);
+  //computeRhoAndU(T);
 
 		for (int k=0; k<q; k++)
 		{

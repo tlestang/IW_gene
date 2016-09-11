@@ -22,7 +22,7 @@ int main()
   system(instru.c_str());
   
   
-  double **p = NULL;;
+  double **rho = NULL;;
   double ***velocity = NULL;
   double **temp = NULL;
   
@@ -30,7 +30,7 @@ int main()
 
   double dx = 1./(dims[0]-1); double gr = 0.001; double beta = 1.;
   double dt = sqrt(gr*dx);
-  double Pr = 0.71; double Ra = 20000.;
+  double Pr = 1.0; double Ra = 50000.;
 
   double nu = sqrt(Pr/Ra)*dt/(dx*dx);
   double kappa  = sqrt(1./(Pr*Ra))*dt/(dx*dx);
@@ -52,7 +52,7 @@ int main()
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta);
 
-  lb->getDensityAndVelocityField(temp, p, velocity);
+  lb->getDensityAndVelocityField(temp, rho, velocity);
 
   int k = 0;
   for (int i=0;i<N;i++)
@@ -63,7 +63,7 @@ int main()
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%10 == 0)
+      if(i%1000 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;
