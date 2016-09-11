@@ -14,7 +14,7 @@ public:
   
 };
 
-class Walls : public Boundary{
+class TopWall : public Boundary{
  private:
  public:
   Walls(const int d[2]);
@@ -23,43 +23,10 @@ class Walls : public Boundary{
 
 };
 
-class HotWall : public Boundary{
- private:
-  
+class Topography : public Walls{
  public:
-  HotWall(const int d[2]);
-  virtual void BoundaryCondition();
-  virtual void BoundaryCondition(ThermalSite**);
-  //virtual void BoundaryCondition(VelSite**, ThermalSite**, double **T, double ***u);
+  Topography(const int d[2], int h, int period, LatticeSite**, LatticeSite**);
+  void FreeSlipBC(LatticeSite **sites, LatticeSite **_sites);
 };
-
-class ColdWall : public Boundary{
- private:
-  
- public:
-  ColdWall(const int d[2]);
-  virtual void BoundaryCondition();
-  virtual void BoundaryCondition(ThermalSite**);
-  //virtual void BoundaryCondition(VelSite**, ThermalSite**, double **T, double ***u);
-  };
-class TopWall : public Boundary{
- private:
-  
- public:
-  TopWall(const int d[2]);
-  virtual void BoundaryCondition();
-  virtual void BoundaryCondition(VelSite**, ThermalSite**, double **T, double ***u);
-  };
-class BottomWall : public Boundary{
- private:
-  
- public:
-  BottomWall(const int d[2]);
-  virtual void BoundaryCondition();
-  virtual void BoundaryCondition(VelSite**, ThermalSite**, double **T, double ***u);
-  };
-
-
-
 
 #endif
