@@ -25,8 +25,10 @@ class TopWall : public Boundary{
 
 class Topography : public Walls{
  public:
-  Topography(const int d[2], int h, int period, LatticeSite**, LatticeSite**);
-  void FreeSlipBC(LatticeSite **sites, LatticeSite **_sites);
+  Topography(const int d[2], int h, int period, VelSite**, VelSite**);
+  void FreeSlipBC(VelSite **sites, VelSite **_sites);
+  void TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
+				   double **T, double ***u)
 };
 
 #endif
