@@ -6,7 +6,7 @@ Boundary::Boundary()
 {
 }
 
-Walls::Walls(const int d[2])
+TopWall::TopWall(const int d[2])
 {
   nbNodes = 2 * d[0];//  + 2* d[1];
   nodes = new int*[nbNodes];
@@ -36,10 +36,10 @@ Walls::Walls(const int d[2])
   //     cc +=1;
   //   }
 }
-void Walls::BoundaryCondition()
+void TopWall::BoundaryCondition()
 {
 }
-void Walls::BoundaryCondition(VelSite **sites, VelSite **_sites)
+void TopWall::BoundaryCondition(VelSite **sites, VelSite **_sites)
 {
   int x,y;
   int op[9] = {0, 3, 4, 1, 2, 7, 8, 5, 6};
