@@ -114,7 +114,7 @@ void VelSite::collide(double& rho, double T, double u[2])
   for (int k=0; k<q; k++)
     {
       //Compute the force from Boussinesq approx
-      force =  3.*w[k]*rho*coef_force*(T-T0)*e[k][1];
+      force =  3.*w[k]*rho*coef_force*T*e[k][1];
       f[k]= f[k]*omega1 +fEq(k,rho,u)*omega +force;	  
       // f[k] *= (1.0-omega);
       // f[k] += omega*fEq(k, rho, u);

@@ -8,13 +8,14 @@
 using namespace std;
 
 LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
-				   double coef_force_)
+				   double coef_force_, double u0_, int h, double N2_)
 {
 
   dims[0] = d[0]; dims[1] = d[1];
   omega[0] = omega_[0];
   omega[1] = omega_[1];
   coef_force = coef_force_;
+  u0 = u0_; N2 = N2_;
 
   velSites = new VelSite*[dims[0]];
   velSites_ = new VelSite*[dims[0]];
@@ -56,7 +57,7 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
   generateGeometry();
   
   w = new TopWall(d);
-  topo = new Topography(d, floor(dims[1]/10), dims[0], velSites, velSites_);
+  topo = new Topography(d, h, u, velSites, velSites_);
   
 
 }
@@ -103,7 +104,7 @@ void LatticeBoltzmann::update()
 		}
 	}
 
-	w->BoundaryCondition(velSites, velSites_);
+	w->FreeSlipBC(velSites, velSites_);
 	topo->FreeSlipBC(velSites, velSites_);
 
 	w->TemperatureBC(velSites_, thermalSites_, T, u);
@@ -121,53 +122,28 @@ void LatticeBoltzmann::update()
 
 void LatticeBoltzmann::generateGeometry()
 {
-	double u[2] = {0, 0};
-
+	double u[2] = {u0, 0};
+	double a = N2*coef_force; double TT;
+	
 	for (int x=0; x<dims[0]; x++)
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
-			if (x == 0 || x == dims[0]-1 || y == 0 || y == dims[1]-1)
-			{
-			  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
-					      omega[0], coef_force);
-			  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
-					       omega[0], coef_force);
-			}
-			else
-			{
-			  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
-					      omega[0], coef_force);
-			  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
-					       omega[0], coef_force);
-			}
-			if (y==0)
-			  {
-			    thermalSites[x][y].init(LatticeSite::Fluid, 1.0, u,
-						    omega[1], coef_force);
-			    thermalSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
-						     omega[1], coef_force);
-			    T[x][y] = 1.0;
-			  }
-			else if(x==(dims[0]-1)/2 && y == 1)
-			  {
-			    T[x][y] = 1.1;
-			    thermalSites[x][y].init(LatticeSite::Fluid, 1.1, u,
-						    omega[1], coef_force);
-			    thermalSites_[x][y].init(LatticeSite::Fluid, 1.1, u,
-						     omega[1], coef_force);
-			}
-			else
-			  {
-			    T[x][y]=0.0;
-			    thermalSites[x][y].init(LatticeSite::Fluid, 0.0, u,
-						    omega[1], coef_force);
-			    thermalSites_[x][y].init(LatticeSite::Fluid, 0.0, u,
-						     omega[1], coef_force);
-			  }
+		  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
+				      omega[0], coef_force);
+		  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
+				       omega[0], coef_force);
+		  
+		  TT = a*y;
+		  T[x][y]=TT;
+		  thermalSites[x][y].init(LatticeSite::Fluid, TT, u,
+					  omega[1], coef_force);
+		  thermalSites_[x][y].init(LatticeSite::Fluid, TT, u,
+					   omega[1], coef_force);
 		}
 	}
 }
+
 
 void LatticeBoltzmann::getDensityAndVelocityField(double **&tp,
 						  double **&rp, double ***&up)

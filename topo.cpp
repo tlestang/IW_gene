@@ -6,7 +6,7 @@
 
 
 
-Topography::Topography(const int d[2], int h, int period,
+Topography::Topography(const int d[2], int h, double ***u,
 		       VelSite **sites, VelSite **_sites)
 {
   nbNodes = d[0];
@@ -20,7 +20,7 @@ Topography::Topography(const int d[2], int h, int period,
   for (int x=0;x<d[0];x++)
     {
       nodes[cc][0] = x;
-      a = 2.*M_PI / period;
+      a = 2.*M_PI / d[0];
       nodes[cc][1] = floor(h*sin(a*x)) + h;
       
       for(int y=0;y<nodes[cc][1];y++)
@@ -41,7 +41,6 @@ void Topography::BoundaryCondition()
 void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 {
   int x,y;
-  int op[9] = {0, 1, 4, 3, 2, 6, 5, 8, 7};
   for (int i=0;i<nbNodes;i++)
     {
       x = nodes[i][0]; y = nodes[i][1];
@@ -54,20 +53,24 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 void Topography::TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
 				   double **T, double ***u)
 {
-  int x,y; double u0[2] = {0.0, 0.0};
+  int c[4][2] = {{1,0}, {0,1}, {-1,0}, {0, -1}};
+  int x,y; 
   double Tcold = 0.0;
-  double TT, pp, uu[2];
+  double Tsup, rho, ub[2], usup[2];
   for (int i=0;i<nbNodes;i++)
     {
+      double eu;
       x = nodes[i][0]; y = nodes[i][1];
 
-      thermalSites[x][y+1].computeRhoAndU(TT);
-      velSites[x][y+1].computeRhoAndU(pp, uu);
+      thermalSites[x][y+1].computeRhoAndU(Tsup);
+      velSites[x][y+1].computeRhoAndU(rho, usup);
+      velSites[x][y].computeRhoAndU(rho, ub);
       
       for (int k=0;k<4;k++)
 	{
-	  thermalSites[x][y].f[k] = TT/4. + thermalSites[x][y+1].f[k]
-	    - thermalSites[x][y+1].fEq(k,TT,uu);
+	  eu = c[k][0]*ub[0] + c[k][1]*ub[1];
+	  thermalSites[x][y].f[k] = (Tsup/4.)*(1.+ 2.*eu) + thermalSites[x][y+1].f[k]
+	    - thermalSites[x][y+1].fEq(k,Tsup,usup);
 	}
     }
 }

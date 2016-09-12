@@ -39,23 +39,39 @@ void TopWall::BoundaryCondition(VelSite **sites, VelSite **_sites)
     }
 }
 
-void TopWall::TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
-				double **T, double ***u)
+void TopWall::FreeSlipBC(VelSite **sites, VelSite **_sites)
 {
-  int x,y; double u0[2] = {0.0, 0.0};
-  double Tcold = 0.0;
-  double TT, pp, uu[2];
+  int x,y;
   for (int i=0;i<nbNodes;i++)
     {
       x = nodes[i][0]; y = nodes[i][1];
+      _sites[x][y].f[7] = _sites[x][y].f[6];
+      _sites[x][y].f[4] = _sites[x][y].f[2];
+      _sites[x][y].f[8] = _sites[x][y].f[5];
+    }
+}
 
-      thermalSites[x][y-1].computeRhoAndU(TT);
-      velSites[x][y-1].computeRhoAndU(pp, uu);
+void TopWall::TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
+				double **T, double ***u)
+{
+  int c[4][2] = {{1,0}, {0,1}, {-1,0}, {0, -1}};
+  int x,y; 
+  double Tcold = 0.0;
+  double Tinf, rho, ub[2], uinf[2];
+  for (int i=0;i<nbNodes;i++)
+    {
+      double eu;
+      x = nodes[i][0]; y = nodes[i][1];
+
+      thermalSites[x][y-1].computeRhoAndU(Tinf);
+      velSites[x][y-1].computeRhoAndU(rho, uinf);
+      velSites[x][y].computeRhoAndU(rho, ub);
       
       for (int k=0;k<4;k++)
 	{
-	  thermalSites[x][y].f[k] = TT/4. + thermalSites[x][y-1].f[k]
-	    - thermalSites[x][y-1].fEq(k,TT,uu);
+	  eu = c[k][0]*ub[0] + c[k][1]*ub[1];
+	  thermalSites[x][y].f[k] = (Tinf/4.)*(1.+2.*eu) + thermalSites[x][y-1].f[k]
+	    - thermalSites[x][y-1].fEq(k,Tinf,uinf);
 	}
     }
 }

@@ -10,6 +10,7 @@ class LatticeBoltzmann
 		int dims[2];
 		double omega[2];
 		double coef_force;
+		double u0, N2;
 		
 		double **rho;
 		double **T;
@@ -30,7 +31,7 @@ class LatticeBoltzmann
 		void streamToNeighbors(int x, int y);
 
 	public:
-		LatticeBoltzmann(const int*, const double*, double);
+		LatticeBoltzmann(const int*, const double*, double, double, int, double);
 		~LatticeBoltzmann();
 
 		void generateGeometry();
