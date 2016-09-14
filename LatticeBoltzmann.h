@@ -10,7 +10,7 @@ class LatticeBoltzmann
 		int dims[2];
 		double omega[2];
 		double coef_force;
-		double u0, N2;
+		double u0, N2, h;
 		
 		double **rho;
 		double **T;
@@ -23,7 +23,8 @@ class LatticeBoltzmann
 		ThermalSite **thermalSites_;
 
 		TopWall *w;
-		Topography *topo;
+		BottomWall *wb;
+		//Topography *topo;
 
 		/* TopWall *tw; */
 		/* BottomWall *bw; */
@@ -35,6 +36,8 @@ class LatticeBoltzmann
 		~LatticeBoltzmann();
 
 		void generateGeometry();
+		double InitialCondition_X(int, int);
+		double InitialCondition_Y(int, int);
 
 		void setSite(int x, int y, LatticeSite::SiteType type, double u[2]);
 		void getDensityAndVelocityField(double **&, double **&, double ***&);

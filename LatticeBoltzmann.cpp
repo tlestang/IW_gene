@@ -8,14 +8,14 @@
 using namespace std;
 
 LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
-				   double coef_force_, double u0_, int h, double N2_)
+				   double coef_force_, double u0_, int h_, double N2_)
 {
 
   dims[0] = d[0]; dims[1] = d[1];
   omega[0] = omega_[0];
   omega[1] = omega_[1];
   coef_force = coef_force_;
-  u0 = u0_; N2 = N2_;
+  u0 = u0_; N2 = N2_; h = h_;
 
   velSites = new VelSite*[dims[0]];
   velSites_ = new VelSite*[dims[0]];
@@ -57,7 +57,8 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
   generateGeometry();
   
   w = new TopWall(d);
-  topo = new Topography(d, h, u, velSites, velSites_);
+  wb = new BottomWall(d);
+  //topo = new Topography(d, h, u, velSites, velSites_);
   
 
 }
@@ -105,10 +106,12 @@ void LatticeBoltzmann::update()
 	}
 
 	w->FreeSlipBC(velSites, velSites_);
-	topo->FreeSlipBC(velSites, velSites_);
+	//topo->FreeSlipBC(velSites, velSites_);
+	wb->FreeSlipBC(velSites, velSites_);
 
 	w->TemperatureBC(velSites_, thermalSites_, T, u);
-	topo->TemperatureBC(velSites_, thermalSites_, T, u);
+	//topo->TemperatureBC(velSites_, thermalSites_, T, u);
+	wb->TemperatureBC(velSites_, thermalSites_, T, u);
 
 
 	swapT = thermalSites;
@@ -122,13 +125,16 @@ void LatticeBoltzmann::update()
 
 void LatticeBoltzmann::generateGeometry()
 {
-	double u[2] = {u0, 0};
+	double u[2] = {0.0, 0};
 	double a = N2*coef_force; double TT;
 	
 	for (int x=0; x<dims[0]; x++)
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
+		  u[0] = InitialCondition_X(x,y);
+		  u[1] = InitialCondition_Y(x,y);
+		  
 		  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
 				      omega[0], coef_force);
 		  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
@@ -152,6 +158,33 @@ void LatticeBoltzmann::getDensityAndVelocityField(double **&tp,
   rp = rho;
   up = u;
 }
+
+double LatticeBoltzmann::InitialCondition_X(int x, int y)
+{
+  double a = 0.0;
+  double delta = 2.*h;
+  double arg; double k = (2.*M_PI)/(dims[0]-1);
+  arg = (y-h*sin(k*x))/delta;
+
+  a = (h/delta)*sin(k*x)*exp(-arg);
+
+  return u0*(1+a);
+}
+
+double LatticeBoltzmann::InitialCondition_Y(int x, int y)
+{
+  double a, b, c;
+  double delta = 2.*h;
+  double arg; double k = (2.*M_PI)/(dims[0]-1);
+  arg = (y-h*sin(k*x))/delta;
+
+  a = u0*h*k*cos(k*x);
+  b = exp(-arg);
+  c = 1.+(h/delta)*sin(k*x);
+
+  return a*b*c;
+
+}
 	     
 LatticeBoltzmann::~LatticeBoltzmann()
 {
@@ -161,5 +194,6 @@ LatticeBoltzmann::~LatticeBoltzmann()
   delete velSites_;
   
   delete w;
-  delete topo;
+  delete wb;
+  //delete topo;
 }

@@ -15,7 +15,7 @@ void write_fluid_vtk(int, int, int, double**, double***, const char*);
 int main(int argc, char *argv[])
 {
 
-  string folderName = "test/";
+  string folderName = "test_no_topo/";
   string instru = "mkdir " + folderName;
   system(instru.c_str());
   instru = "mkdir " + folderName + "vtk_fluid/";
