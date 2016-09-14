@@ -97,8 +97,8 @@ void LatticeBoltzmann::update()
 		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
 		  thermalSites[x][y].computeRhoAndU(T[x][y]);
 		  
-		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y]);
-		  thermalSites[x][y].collide(T[x][y], u[x][y]);
+		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[0]);
+		  thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
 		  
 		  streamToNeighbors(x, y);
 		    }
@@ -136,16 +136,16 @@ void LatticeBoltzmann::generateGeometry()
 		  u[1] = InitialCondition_Y(x,y);
 		  
 		  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
-				      omega[0], coef_force);
+				      coef_force);
 		  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
-				       omega[0], coef_force);
+				       coef_force);
 		  
 		  TT = a*y;
 		  T[x][y]=TT;
 		  thermalSites[x][y].init(LatticeSite::Fluid, TT, u,
-					  omega[1], coef_force);
+					  coef_force);
 		  thermalSites_[x][y].init(LatticeSite::Fluid, TT, u,
-					   omega[1], coef_force);
+					   coef_force);
 		}
 	}
 }

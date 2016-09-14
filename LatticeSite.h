@@ -10,7 +10,7 @@ class LatticeSite
 
 	protected:
 		int q;
-		double force; double omega1, omega;
+		double force; 
 		SiteType type;
 		double coef_force;
 
@@ -18,8 +18,8 @@ class LatticeSite
 		LatticeSite();
 		virtual double fEq(int k, double rho, double u[2]) = 0;
 		virtual void computeRhoAndU(double& rho, double u[2]) = 0;
-		virtual void collide(double& rho, double u[2]) = 0;
-		virtual void init(SiteType, double, double*, double, double) = 0;
+		virtual void collide(double& rho, double& T, double u[2], double omega) = 0;
+		virtual void init(SiteType, double, double*, double) = 0;
 		bool isSolid();
 		bool isFluid();
 		void setType(SiteType t);
@@ -36,11 +36,10 @@ class VelSite : public LatticeSite
   double T0, g, beta;
  public:
   VelSite();
-  virtual void init(SiteType, double, double*, double, double);
+  virtual void init(SiteType, double, double*, double);
   virtual double fEq(int k, double rho, double u[2]);
   virtual void computeRhoAndU(double& rho, double u[2]);
-  virtual void collide(double&, double u[2]);
-  virtual void collide(double& rho, double T, double u[2]);
+  virtual void collide(double& rho, double& T, double u[2], double omega);
 };
 
 class ThermalSite : public LatticeSite
@@ -49,10 +48,10 @@ class ThermalSite : public LatticeSite
   static const int c[4][2];
 
   ThermalSite();
-  virtual void init(SiteType, double, double*, double, double);
+  virtual void init(SiteType, double, double*, double);
   virtual double fEq(int k, double rho, double u[2]);
   virtual void computeRhoAndU(double&, double u[2]);
   virtual void computeRhoAndU(double& T);
-  virtual void collide(double& T, double u[2]);
+  virtual void collide(double &rho, double &T, double u[2], double omega);
 };
 #endif
