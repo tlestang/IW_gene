@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
   LatticeBoltzmann *lb;
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta, u0, h, N2);
+  lb->setSpgeLayer(floor((Dy-1)/4));
 
   lb->getDensityAndVelocityField(temp, rho, velocity);
 

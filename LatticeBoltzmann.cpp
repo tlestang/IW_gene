@@ -86,7 +86,7 @@ void LatticeBoltzmann::update()
 {
   ThermalSite **swapT;
   VelSite **swapVel;
-
+  double om, a;
 	for (int x=0; x<dims[0]; x++)
 	{
 		for (int y=0; y<dims[1]; y++)
@@ -96,8 +96,15 @@ void LatticeBoltzmann::update()
 		      
 		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
 		  thermalSites[x][y].computeRhoAndU(T[x][y]);
+
+		  if(y>(spgeFirstNode-1))
+		    {
+		      a = ySpge/y;
+		      om = (1.-0.999*a*a)*omega[0];
+		    }
+		  else{om = omega[0];}
 		  
-		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[0]);
+		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], om);
 		  thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
 		  
 		  streamToNeighbors(x, y);
@@ -185,7 +192,14 @@ double LatticeBoltzmann::InitialCondition_Y(int x, int y)
   return a*b*c;
 
 }
-	     
+
+void LatticeBoltzmann::setSpgeLayer(int nbOfSpgeNodes)
+{
+  spgeFirstNode = (dims[1]-1) - (nbOfSpgeNodes-1);
+  ySpge = dims[1] - floor((1./4)*nbOfSpgeNodes);
+}
+  
+
 LatticeBoltzmann::~LatticeBoltzmann()
 {
   delete thermalSites;

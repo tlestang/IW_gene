@@ -11,6 +11,7 @@ class LatticeBoltzmann
 		double omega[2];
 		double coef_force;
 		double u0, N2, h;
+		double spgeFirstNode, ySpge;
 		
 		double **rho;
 		double **T;
@@ -40,6 +41,7 @@ class LatticeBoltzmann
 		double InitialCondition_Y(int, int);
 
 		void setSite(int x, int y, LatticeSite::SiteType type, double u[2]);
+		void setSpgeLayer(int);
 		void getDensityAndVelocityField(double **&, double **&, double ***&);
 		void update();
 };
