@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 
 #include "LatticeBoltzmann.h"
@@ -57,8 +58,7 @@ LatticeBoltzmann::LatticeBoltzmann(const int d[2], const double omega_[2],
   generateGeometry();
   
   w = new TopWall(d);
-  wb = new BottomWall(d);
-  //topo = new Topography(d, h, u, velSites, velSites_);
+  topo = new Topography(d, h, u, velSites, velSites_);
   
 
 }
@@ -86,8 +86,9 @@ void LatticeBoltzmann::update()
 {
   ThermalSite **swapT;
   VelSite **swapVel;
-  double om, a;
-	for (int x=0; x<dims[0]; x++)
+  double om, a, dSpge;
+  //ofstream lulu("spgegeometry.dat");
+  	for (int x=0; x<dims[0]; x++)
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
@@ -99,10 +100,19 @@ void LatticeBoltzmann::update()
 
 		  if(y>(spgeFirstNode-1))
 		    {
-		      a = ySpge/y;
-		      om = (1.-0.999*a*a)*omega[0];
+		      if(y>ySpge){om = 0.001*omega[0];}
+		      else{
+			dSpge = ySpge-spgeFirstNode;
+			a = (y-spgeFirstNode)/dSpge;
+			om = (1.-0.999*a*a)*omega[0];
+		      }
 		    }
 		  else{om = omega[0];}
+
+		  // if(x==250)
+		  //   {
+		  //     lulu << y << " " << om << endl;
+		  //   }
 		  
 		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], om);
 		  thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
@@ -110,15 +120,16 @@ void LatticeBoltzmann::update()
 		  streamToNeighbors(x, y);
 		    }
 		}
-	}
 
+	}
+	//lulu.close();
 	w->FreeSlipBC(velSites, velSites_);
-	//topo->FreeSlipBC(velSites, velSites_);
-	wb->FreeSlipBC(velSites, velSites_);
+	topo->FreeSlipBC(velSites, velSites_);
+	//wb->FreeSlipBC(velSites, velSites_);
 
 	w->TemperatureBC(velSites_, thermalSites_, T, u);
-	//topo->TemperatureBC(velSites_, thermalSites_, T, u);
-	wb->TemperatureBC(velSites_, thermalSites_, T, u);
+	topo->TemperatureBC(velSites_, thermalSites_, T, u);
+	//wb->TemperatureBC(velSites_, thermalSites_, T, u);
 
 
 	swapT = thermalSites;
@@ -132,15 +143,15 @@ void LatticeBoltzmann::update()
 
 void LatticeBoltzmann::generateGeometry()
 {
-	double u[2] = {0.0, 0};
+	double u[2] = {u0, 0};
 	double a = N2*coef_force; double TT;
 	
 	for (int x=0; x<dims[0]; x++)
 	{
 		for (int y=0; y<dims[1]; y++)
 		{
-		  u[0] = InitialCondition_X(x,y);
-		  u[1] = InitialCondition_Y(x,y);
+		  //u[0] = InitialCondition_X(x,y);
+		  //u[1] = InitialCondition_Y(x,y);
 		  
 		  velSites[x][y].init(LatticeSite::Fluid, 1.0, u,
 				      coef_force);
@@ -208,6 +219,5 @@ LatticeBoltzmann::~LatticeBoltzmann()
   delete velSites_;
   
   delete w;
-  delete wb;
-  //delete topo;
+  delete topo;
 }

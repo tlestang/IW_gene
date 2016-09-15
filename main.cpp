@@ -15,7 +15,7 @@ void write_fluid_vtk(int, int, int, double**, double***, const char*);
 int main(int argc, char *argv[])
 {
 
-  string folderName = "test_no_topo/";
+  string folderName = "test/";
   string instru = "mkdir " + folderName;
   system(instru.c_str());
   instru = "mkdir " + folderName + "vtk_fluid/";
@@ -58,9 +58,9 @@ int main(int argc, char *argv[])
 
   // Now compute simulation parameters from physical values.
   //Lattice velocity set to 0.1 (Low Ma limit).
-  double u0 = 0.1;
+  double u0 = 0.01;
 
-  double delta_x = D/Dx;
+  double delta_x = D/(Dx-1);
   double delta_t = (delta_x*u0)/U0;
 
   //Lattice viscosity is set so that tau = 0.51 which is expected to be stable enough.
@@ -97,11 +97,11 @@ int main(int argc, char *argv[])
   LatticeBoltzmann *lb;
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta, u0, h, N2);
-  lb->setSpgeLayer(floor((Dy-1)/4));
+  lb->setSpgeLayer(floor((Dy-1)/2));
 
   lb->getDensityAndVelocityField(temp, rho, velocity);
 
-  int N = 60000;
+  int N = 16000;
   int k = 0; int tt = 0;
   for (int i=0;i<N;i++)
     {

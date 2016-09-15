@@ -24,8 +24,7 @@ class LatticeBoltzmann
 		ThermalSite **thermalSites_;
 
 		TopWall *w;
-		BottomWall *wb;
-		//Topography *topo;
+		Topography *topo;
 
 		/* TopWall *tw; */
 		/* BottomWall *bw; */
