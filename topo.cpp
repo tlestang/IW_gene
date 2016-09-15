@@ -17,16 +17,16 @@ Topography::Topography(const int d[2], int h, double ***u,
 
   double a;
   int cc = 0;
-  for (int x=0;x<d[0];x++)
+  for (int xx=0;xx<d[0];xx++)
     {
-      nodes[cc][0] = x;
+      nodes[cc][0] = xx;
       a = 2.*M_PI / d[0];
-      nodes[cc][1] = floor(h*sin(a*x)) + h;
+      nodes[cc][1] = floor(h*sin(a*xx)) + h;
       
-      for(int y=0;y<nodes[cc][1];y++)
+      for(int yy=0;yy<nodes[cc][1];yy++)
 	{
-	  sites[x][y].setType(VelSite::Solid);
-	  _sites[x][y].setType(VelSite::Solid);
+	  sites[xx][yy].init(LatticeSite::Solid, 1.0, u0);
+	  _sites[xx][yy].init(LatticeSite::Solid, 1.0, u0)
 	}
             
       cc += 1;
