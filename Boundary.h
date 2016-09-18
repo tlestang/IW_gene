@@ -39,6 +39,8 @@ class BottomWall : public Boundary{
 };
 
 class Topography : public Boundary{
+ private:
+  int *lbl;
  public:
   Topography(const int d[2], int h, double*** u, VelSite**, VelSite**);
   virtual void BoundaryCondition();

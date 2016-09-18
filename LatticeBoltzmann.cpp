@@ -98,6 +98,7 @@ void LatticeBoltzmann::update()
 		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
 		  thermalSites[x][y].computeRhoAndU(T[x][y]);
 
+		  
 		  if(y>(spgeFirstNode-1))
 		    {
 		      if(y>ySpge){om = 0.001*omega[0];}
@@ -122,7 +123,7 @@ void LatticeBoltzmann::update()
 		}
 
 	}
-	//lulu.close();
+
 	w->FreeSlipBC(velSites, velSites_);
 	topo->FreeSlipBC(velSites, velSites_);
 	//wb->FreeSlipBC(velSites, velSites_);
@@ -144,7 +145,7 @@ void LatticeBoltzmann::update()
 void LatticeBoltzmann::generateGeometry()
 {
 	double u[2] = {u0, 0};
-	double a = N2*coef_force; double TT;
+	double a = N2/coef_force; double TT;
 	
 	for (int x=0; x<dims[0]; x++)
 	{

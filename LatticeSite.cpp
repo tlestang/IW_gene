@@ -105,12 +105,16 @@ double ThermalSite::fEq(int k, double T, double u[2])
 void VelSite::collide(double& rho, double& T, double u[2], double omega)
 {
   //computeRhoAndU(rho, u);
-
+  double eu, a, F;
+  a = (1.-0.5*omega);
   for (int k=0; k<q; k++)
     {
       //Compute the force from Boussinesq approx
+      eu = e[k][0]*u[0] + e[k][1]*u[1];
+      F = rho*coef_force*T;
+      //force = a * w[k] * (3.*(e[k][1]*F-u[1]*F) + 9.*eu*F);
       force =  3.*w[k]*rho*coef_force*T*e[k][1];
-      f[k]= f[k]*(1.-omega) +fEq(k,rho,u)*omega +force;	  
+      f[k]= f[k]*(1.-omega) +fEq(k,rho,u)*omega + force;	  
       // f[k] *= (1.0-omega);
       // f[k] += omega*fEq(k, rho, u);
     }

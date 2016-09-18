@@ -15,7 +15,7 @@ void write_fluid_vtk(int, int, int, double**, double***, const char*);
 int main(int argc, char *argv[])
 {
 
-  string folderName = "test/";
+  string folderName = "test_temp/";
   string instru = "mkdir " + folderName;
   system(instru.c_str());
   instru = "mkdir " + folderName + "vtk_fluid/";
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   // declaration of parameters in LATTICE units.
 
   int Nx;
-  double gr = 0.001; double beta = 1.;
+  double beta = 1;
   double nu, kappa, tau_prim, N2;
   int h;
   int Dx, Dy;
@@ -59,12 +59,14 @@ int main(int argc, char *argv[])
   // Now compute simulation parameters from physical values.
   //Lattice velocity set to 0.1 (Low Ma limit).
   double u0 = 0.01;
-
   double delta_x = D/(Dx-1);
   double delta_t = (delta_x*u0)/U0;
+  //double gr = 9.8*(delta_t*delta_t/delta_x);
+  double gr = 0.0001;
 
   //Lattice viscosity is set so that tau = 0.51 which is expected to be stable enough.
-  double tau = 0.51;
+  double tau = 0.6;
+  //double tau = 3./2.;
   nu = (2*tau -1)/6.; nuPhi = nu*(delta_x*delta_x/delta_t);
   kappa = nu/Pr; kappaPhi = kappa*(delta_x*delta_x/delta_t);
   tau_prim = 2.*kappa + 0.5;
@@ -80,6 +82,8 @@ int main(int argc, char *argv[])
   paramFile << "  tau = " << tau << " | tau_prim = " << tau_prim << endl;
   paramFile << "  Dy = " << Dy << endl;
   paramFile << "  h = " << h << endl;
+  paramFile << "  g = " << gr << endl;
+  paramFile << "  N2 = " << N2 << endl;
 
   paramFile << "PHYSICAL SETUP IN PHYSICAL UNITS" << endl;
   paramFile << "  nu = " << nuPhi << endl;
@@ -97,25 +101,30 @@ int main(int argc, char *argv[])
   LatticeBoltzmann *lb;
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta, u0, h, N2);
-  lb->setSpgeLayer(floor((Dy-1)/2));
+  lb->setSpgeLayer(floor((Dy-1)/4));
 
   lb->getDensityAndVelocityField(temp, rho, velocity);
 
-  int N = 16000;
+  int N = 1600000;
   int k = 0; int tt = 0;
+  double d;
+  ofstream lulu("grad.dat");
   for (int i=0;i<N;i++)
     {
+      d = temp[50][dims[1]-1] - temp[50][dims[1]-2];
+      lulu << i << " " << d << endl;
+
       lb->update();
       if(i%(N/100)==0)
       	{
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%100 == 0)
+      if(i%1000 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;
       	}
     }    
-  
+  lulu.close();
 }
