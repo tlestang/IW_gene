@@ -91,9 +91,11 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 
 	  if(dd > 0.) // if mur gauche
 	    {
-	      _sites[x][y].f[3] = sites[x][y].f[4];
-	      _sites[x][y].f[2] = sites[x][y].f[1];
-	      _sites[x][y].f[6] = sites[x][y].f[8];
+	      _sites[x][y].f[2] = sites[x][y].f[4];
+	      if (x == nbNodes-1){
+		_sites[x][y].f[6] = sites[0][y].f[7];}
+	      else{
+		_sites[x][y].f[6] = sites[x+1][y].f[7];}
 	      // _sites[x][y].f[6] = _sites[x][y].f[5];
 	      // _sites[x][y].f[7] = _sites[x][y].f[8];
 	      // _sites[x][y].f[3] = _sites[x][y].f[1];
@@ -102,9 +104,12 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 	    }
 	  else
 	    {
-	      _sites[x][y].f[2] = sites[x][y].f[3];
-	      _sites[x][y].f[1] = sites[x][y].f[4];
-	      _sites[x][y].f[5] = sites[x][y].f[7];
+	      _sites[x][y].f[2] = sites[x][y].f[4];
+	      if(x == 0)
+		{
+		  _sites[x][y].f[5] = sites[nbNodes-1][y].f[8];}
+	      else{
+		_sites[x][y].f[5] = sites[x-1][y].f[8];}
 	      // _sites[x][y].f[5] = _sites[x][y].f[6];
 	      // _sites[x][y].f[8] = _sites[x][y].f[7];
 	      // _sites[x][y].f[1] = _sites[x][y].f[3];
@@ -114,10 +119,29 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 	}
       else
 	{
-	  for (int k=0;k<9;k++)
+	  if(nodes[i][0] == 0 || nodes[i][0] == nbNodes-1){dd = +1;}
+	  else{dd = (nodes[i+1][1]-nodes[i-1][1])/2.;}
+	  if(dd > 0)
 	    {
-	      _sites[x][y].f[k] = sites[x][y].f[op[k]];
+	      _sites[x][y].f[2] = sites[x][y].f[op[2]];
+	      _sites[x][y].f[5] = sites[x][y].f[op[5]];
+	      if(x == nbNodes-1){
+		_sites[x][y].f[6] = sites[0][y].f[7];}
+	      else{
+		_sites[x][y].f[6] = sites[x+1][y].f[7];}
 	    }
+	  else
+	    {
+	      _sites[x][y].f[2] = sites[x][y].f[op[2]];
+	      _sites[x][y].f[6] = sites[x][y].f[op[6]];
+	      if(x == 0)
+		{
+		  _sites[x][y].f[5] = sites[nbNodes-1][y].f[8];}
+	      else{
+		_sites[x][y].f[5] = sites[x-1][y].f[8];}
+	    }
+	      
+
 	  // bb << x << " " << y << endl;
 	  // cc += 1;
 	}
