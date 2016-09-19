@@ -12,6 +12,8 @@ LatticeSite::LatticeSite()
 {
   //default values
   normal_link = 0;
+  tag = DefaultTag;
+  type = Null;
 }
 void VelSite::init(SiteType t, double rho, double u[2],
 		   double coef_force_)
@@ -63,7 +65,7 @@ bool LatticeSite::isFluid()
 }
 bool LatticeSite::isFluidSolid()
 {
-  return tag = FluidSolid;
+  return tag == FluidSolid;
 }
 bool LatticeSite::isInnerFluid()
 {

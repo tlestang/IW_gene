@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   paramFile << "  dt = " << delta_t << " s" << endl;
   paramFile.close();
 
-  int dims[2] = {Dx, Dy};
+  int dims[2] = {Dx+2, Dy+2}; // + 2 for Ghost Nodes
   double omega[2];
   omega[0] = 1./tau;
   omega[1]  = 1./tau_prim;
@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta, u0, N2);
   lb->generateTopography(h);
+  lb->TagFluidNodes();
   lb->setSpgeLayer(floor((Dy-1)/4));
 
   lb->getDensityAndVelocityField(temp, rho, velocity);
@@ -109,23 +110,19 @@ int main(int argc, char *argv[])
   int N = 160000;
   int k = 0; int tt = 0;
   double d;
-  ofstream lulu("grad.dat");
-  for (int i=0;i<N;i++)
-    {
-      d = temp[50][dims[1]-1] - temp[50][dims[1]-2];
-      lulu << i << " " << d << endl;
 
+  for (int i=0;i<1;i++)
+    {
       lb->update();
       if(i%(N/100)==0)
       	{
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%1000 == 0)
+      if(i%10 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;
       	}
     }    
-  lulu.close();
 }

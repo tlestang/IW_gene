@@ -83,6 +83,10 @@ void LatticeBoltzmann::update()
   ThermalSite **swapT;
   VelSite **swapVel;
   double om, a, dSpge;
+  for(int x=0;x<dims[0];x++)
+    {
+      cout << velSites[x][dims[1]-1].getNormalLink() << endl;
+    }
   //ofstream lulu("spgegeometry.dat");
   	for (int x=0; x<dims[0]; x++)
 	{
@@ -119,7 +123,6 @@ void LatticeBoltzmann::update()
 		}
 
 	}
-
 	BoundaryConditions();
 
 	swapT = thermalSites;
@@ -135,10 +138,11 @@ void LatticeBoltzmann::generateGeometry()
 {
 	double u[2] = {u0, 0};
 	double a = N2/coef_force; double TT;
-	
-	for (int x=0; x<dims[0]; x++)
+
+	//Initialize fluid domain
+	for (int x=1; x<dims[0]-1; x++)
 	{
-		for (int y=0; y<dims[1]; y++)
+		for (int y=1; y<dims[1]-1; y++)
 		{
 		  //u[0] = InitialCondition_X(x,y);
 		  //u[1] = InitialCondition_Y(x,y);
@@ -148,7 +152,7 @@ void LatticeBoltzmann::generateGeometry()
 		  velSites_[x][y].init(LatticeSite::Fluid, 1.0, u,
 				       coef_force);
 		  
-		  TT = a*y;
+		  TT = a*(y-1);
 		  T[x][y]=TT;
 		  thermalSites[x][y].init(LatticeSite::Fluid, TT, u,
 					  coef_force);
@@ -156,6 +160,47 @@ void LatticeBoltzmann::generateGeometry()
 					   coef_force);
 		}
 	}
+
+	TT = 0.0;
+	//Initialize Ghost Nodes
+	for(int y=0;y<dims[1];y++)
+	  {
+	    velSites[0][y].init(LatticeSite::Solid, 1.0, unull,
+				coef_force);
+	    velSites_[0][y].init(LatticeSite::Solid, 1.0, unull,
+				 coef_force);
+	    thermalSites[0][y].init(LatticeSite::Solid, TT, unull,
+				    coef_force);
+	    thermalSites_[0][y].init(LatticeSite::Solid, TT, unull,
+				     coef_force);
+	    velSites[dims[0]-1][y].init(LatticeSite::Solid, 1.0, unull,
+				coef_force);
+	    velSites_[dims[0]-1][y].init(LatticeSite::Solid, 1.0, unull,
+				 coef_force);
+	    thermalSites[dims[0]-1][y].init(LatticeSite::Solid, TT, unull,
+				    coef_force);
+	    thermalSites_[dims[0]-1][y].init(LatticeSite::Solid, TT, unull,
+				     coef_force);
+	  }
+	for(int x=1;y<dims[1]-1;y++)
+	  {
+	    velSites[x][0].init(LatticeSite::Solid, 1.0, unull,
+				coef_force);
+	    velSites_[x][0].init(LatticeSite::Solid, 1.0, unull,
+				 coef_force);
+	    thermalSites[x][0].init(LatticeSite::Solid, TT, unull,
+				    coef_force);
+	    thermalSites_[x][0].init(LatticeSite::Solid, TT, unull,
+				     coef_force);
+	    velSites[x][dims[1]-1].init(LatticeSite::Solid, 1.0, unull,
+				coef_force);
+	    velSites_[x][dims[1]-1].init(LatticeSite::Solid, 1.0, unull,
+				 coef_force);
+	    thermalSites[x][dims[1]-1].init(LatticeSite::Solid, TT, unull,
+				    coef_force);
+	    thermalSites_[x][dims[1]-1].init(LatticeSite::Solid, TT, unull,
+				     coef_force);
+	  }
 }
 
 void LatticeBoltzmann::TagFluidNodes()
@@ -169,6 +214,7 @@ void LatticeBoltzmann::TagFluidNodes()
 	  
 	  if(velSites[x][y].isFluid())
 	    {
+	      isSet = false;
 	      for(int k=0;k<9;k++)
 		{
 		  nx = (x + VelSite::e[k][0] + dims[0])%dims[0];
@@ -183,102 +229,104 @@ void LatticeBoltzmann::TagFluidNodes()
 			}
 		      // Matk the node as Boundary node (fluidSOlid)
 		      velSites[x][y].brLinks[k] = 1;
+		      if (!isSet) {
+			switch (k) {
+			case 0:
+			  break;
+
+			case 1:
+			  if (velSites[x + VelSite::e[5][0]][y+ VelSite::e[5][1]].isSolid()
+			      && velSites[x + VelSite::e[8][0]][y + VelSite::e[8][1]].isSolid()
+			      && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid()
+			      && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid()) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 2:
+			  if (velSites[x + VelSite::e[5][0]][y + VelSite::e[5][1]].isSolid()
+			      && velSites[x + VelSite::e[6][0]][y + VelSite::e[6][1]].isSolid()
+			      && velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
+			      && velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 3:
+			  if (velSites[x + VelSite::e[6][0]][y + VelSite::e[6][1]].isSolid()
+			      && velSites[x + VelSite::e[7][0]][y + VelSite::e[7][1]].isSolid()
+			      && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid()
+			      && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid()) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 4:
+			  if (velSites[x + VelSite::e[7][0]][y + VelSite::e[7][1]].isSolid()
+			      && velSites[x + VelSite::e[8][0]][y + VelSite::e[8][1]].isSolid()
+			      && velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
+			      && velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 5:
+			  if ((velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
+			       && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid())
+			      || (velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isSolid()
+				  && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isSolid())) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 6:
+			  if ((velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()
+			       && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid())
+			      || (velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isSolid()
+				  && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isSolid())) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 7:
+			  if ((velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()
+			       && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid())
+			      || (velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isSolid()
+				  && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isSolid())) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+			case 8:
+			  if ((velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
+			       && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid())
+			      || (velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isSolid()
+				  && velSites[x+ VelSite::e[4][0]][y + VelSite::e[4][1]].isSolid())) {
+			    isSet = true;
+			    velSites[x][y].setNormalLink(k);
+			    velSites_[x][y].setNormalLink(k);
+			  }
+			  break;
+
+			default:
+			  cout << "error in tagging fluid nodes"
+			       << endl;
+			}
+		      }
 		    }
+
 		  else{
 		    velSites[x][y].brLinks[k] = 0;
 		  }
 
-		  if (!isSet) {
-		    switch (k) {
-		    case 0:
-		      break;
 
-		    case 1:
-		      if (velSites[x + VelSite::e[5][0]][y+ VelSite::e[5][1]].isSolid()
-			  && velSites[x + VelSite::e[8][0]][y + VelSite::e[8][1]].isSolid()
-			  && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid()
-			  && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid()) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 2:
-		      if (velSites[x + VelSite::e[5][0]][y + VelSite::e[5][1]].isSolid()
-			  && velSites[x + VelSite::e[6][0]][y + VelSite::e[6][1]].isSolid()
-			  && velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
-			  && velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 3:
-		      if (velSites[x + VelSite::e[6][0]][y + VelSite::e[6][1]].isSolid()
-			  && velSites[x + VelSite::e[7][0]][y + VelSite::e[7][1]].isSolid()
-			  && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid()
-			  && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid()) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 4:
-		      if (velSites[x + VelSite::e[7][0]][y + VelSite::e[7][1]].isSolid()
-			  && velSites[x + VelSite::e[8][0]][y + VelSite::e[8][1]].isSolid()
-			  && velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
-			  && velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 5:
-		      if ((velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
-			   && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid())
-			  || (velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isSolid()
-			      && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isSolid())) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 6:
-		      if ((velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()
-			   && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isFluid())
-			  || (velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isSolid()
-			      && velSites[x + VelSite::e[2][0]][y + VelSite::e[2][1]].isSolid())) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 7:
-		      if ((velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isFluid()
-			   && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid())
-			  || (velSites[x + VelSite::e[3][0]][y + VelSite::e[3][1]].isSolid()
-			      && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isSolid())) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-		    case 8:
-		      if ((velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isFluid()
-			   && velSites[x + VelSite::e[4][0]][y + VelSite::e[4][1]].isFluid())
-			  || (velSites[x + VelSite::e[1][0]][y + VelSite::e[1][1]].isSolid()
-			      && velSites[x+ VelSite::e[4][0]][y + VelSite::e[4][1]].isSolid())) {
-			isSet = true;
-			velSites[x][y].setNormalLink(k);
-			velSites_[x][y].setNormalLink(k);
-		      }
-		      break;
-
-		    default:
-		      cout << "error in tagging fluid nodes"
-			   << endl;
-		    }
-		  }
 		}
 	    }
 	}
