@@ -45,6 +45,14 @@ bool LatticeSite::isFluid()
 {
   return type == Fluid;
 }
+bool LatticeSite::isFluidSolid()
+{
+  return tag = FluidSolid;
+}
+bool LatticeSite::isInnerFluid()
+{
+  return tag == InnerFluid;
+}
 
 VelSite::VelSite()
 {

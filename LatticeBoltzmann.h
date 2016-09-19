@@ -36,6 +36,7 @@ class LatticeBoltzmann
 		~LatticeBoltzmann();
 
 		void generateGeometry();
+		void TagFluidNodes();
 		double InitialCondition_X(int, int);
 		double InitialCondition_Y(int, int);
 
@@ -43,6 +44,7 @@ class LatticeBoltzmann
 		void setSpgeLayer(int);
 		void getDensityAndVelocityField(double **&, double **&, double ***&);
 		void update();
+		
 };
 
 #endif

@@ -169,6 +169,39 @@ void LatticeBoltzmann::generateGeometry()
 	}
 }
 
+void LatticeBoltzmann::TagFluidNodes()
+{
+  int nx, ny;
+  
+  for(int x=0;x<dims[0];x++)
+    {
+      for (int y=0;y<dims[1];y++)
+	{
+	  
+	  if(velSites.[x][y].isFluid())
+	    {
+	      for(int k=0;k<9;k++)
+		{
+		  nx = (x + VelSite::e[k][0] + dims[0])%dims[0];
+		  ny = (y + VelSite::e[k][1] + dims[1])%dims[1];
+
+		  if(velSites.[nx][ny].isSolid())
+		    {
+		      if(!velSites[x][y].isFluidSolid()){tag = FluidSolid;}
+		      // Matk the node as Boundary node (fluidSOlid)
+		      brLinks[k] = 1;
+		    }
+		  else{
+		    brLinks = 0;
+		  }
+		}
+	    }
+	}
+    }
+}
+
+		  
+
 
 void LatticeBoltzmann::getDensityAndVelocityField(double **&tp,
 						  double **&rp, double ***&up)

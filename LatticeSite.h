@@ -7,7 +7,7 @@ class LatticeSite
 		enum SiteType {Fluid = 'f', Solid = 'b', Null = 'n'};
 		enum FluidTag {FluidSolid = 'b', InnerFluid = 'i', DefaultTag='y'};
 
-		double f[9];
+		double f[9]; int brLinks[9];
 
 	protected:
 		int q;
@@ -22,10 +22,10 @@ class LatticeSite
 		virtual void computeRhoAndU(double& rho, double u[2]) = 0;
 		virtual void collide(double& rho, double& T, double u[2], double omega) = 0;
 		virtual void init(SiteType, double, double*, double) = 0;
-		bool isSolid();
-		bool isFluid();
+		bool isSolid(); bool isFluid();
+		bool isFluidSolid(); bool isInnerFluid();
 		void setType(SiteType t);
-		voi setTag(FluidTag tag);
+		void setTag(FluidTag tag);
 		
 };
 
@@ -35,8 +35,6 @@ class VelSite : public LatticeSite
   static const int e[9][2];
  private:
   static const double w[9];
-  static const double pterm[9];
-  static const double lbda, gma, sigma;
   double T0, g, beta;
  public:
   VelSite();
