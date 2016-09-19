@@ -48,6 +48,11 @@ void setNormalLink(int k)
   normal_link = k;
 }
 
+int getNormalLink()
+{
+  return normal_link;
+}
+
 bool LatticeSite::isSolid()
 {
   return type == Solid;

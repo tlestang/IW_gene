@@ -28,6 +28,7 @@ class LatticeSite
 		void setType(SiteType t);
 		void setFluidTag(FluidTag tag);
 		void setNormalLink(int);
+		int getNormalLink();
 		
 };
 
