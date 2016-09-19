@@ -18,7 +18,7 @@ void LatticeBoltzmann::generateTopography(int h)
       a = 2.*M_PI / dims[0];
       yy = floor(h*sin(a*xx)) + h;
       
-      for(int y=0;y<yy+1;y++)
+      for(int y=0;y<yy;y++)
 	{
 	  velSites[xx][y].init(LatticeSite::Solid, 1.0, uu, 0);
 	  velSites_[xx][y].init(LatticeSite::Solid, 1.0, uu, 0);
