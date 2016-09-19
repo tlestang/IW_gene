@@ -64,15 +64,15 @@ void LatticeBoltzmann::streamToNeighbors(int x, int y)
 {
 	for (int k=0; k<9; k++)
 	{
-	  int nx = (x + VelSite::e[k][0] + dims[0])%dims[0];
-	  int ny = (y + VelSite::e[k][1] + dims[1])%dims[1];
+	  int nx = x + VelSite::e[k][0];
+	  int ny = y + VelSite::e[k][1];
 
 	  velSites_[nx][ny].f[k] = velSites[x][y].f[k];
 	}
 	for (int k=0;k<4;k++)
 	  {
-	    int nx = (x + ThermalSite::c[k][0] + dims[0])%dims[0];
-	    int ny = (y + ThermalSite::c[k][1] + dims[1])%dims[1];
+	    int nx = x + ThermalSite::c[k][0];
+	    int ny = y + ThermalSite::c[k][1];
 	    
 	    thermalSites_[nx][ny].f[k] = thermalSites[x][y].f[k];
 	  }
@@ -83,14 +83,10 @@ void LatticeBoltzmann::update()
   ThermalSite **swapT;
   VelSite **swapVel;
   double om, a, dSpge;
-  for(int x=0;x<dims[0];x++)
-    {
-      cout << velSites[x][dims[1]-1].getNormalLink() << endl;
-    }
-  //ofstream lulu("spgegeometry.dat");
-  	for (int x=0; x<dims[0]; x++)
+
+  	for (int x=1; x<dims[0]-1; x++)
 	{
-		for (int y=0; y<dims[1]; y++)
+		for (int y=1; y<dims[1]-1; y++)
 		{
 		  if(velSites[x][y].isFluid())
 		    {
@@ -110,11 +106,6 @@ void LatticeBoltzmann::update()
 		    }
 		  else{om = omega[0];}
 
-		  // if(x==250)
-		  //   {
-		  //     lulu << y << " " << om << endl;
-		  //   }
-		  
 		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], om);
 		  thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
 		  
