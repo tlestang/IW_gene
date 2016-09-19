@@ -127,7 +127,7 @@ void LatticeBoltzmann::update()
 
 void LatticeBoltzmann::generateGeometry()
 {
-	double u[2] = {u0, 0};
+  double u[2] = {u0, 0}; double unull[2] = {0.0, 0.0};
 	double a = N2/coef_force; double TT;
 
 	//Initialize fluid domain
@@ -173,7 +173,7 @@ void LatticeBoltzmann::generateGeometry()
 	    thermalSites_[dims[0]-1][y].init(LatticeSite::Solid, TT, unull,
 				     coef_force);
 	  }
-	for(int x=1;y<dims[1]-1;y++)
+	for(int x=1;x<dims[0]-1;x++)
 	  {
 	    velSites[x][0].init(LatticeSite::Solid, 1.0, unull,
 				coef_force);

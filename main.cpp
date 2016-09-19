@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   int k = 0; int tt = 0;
   double d;
 
-  for (int i=0;i<1;i++)
+  for (int i=0;i<N;i++)
     {
       lb->update();
       if(i%(N/100)==0)
