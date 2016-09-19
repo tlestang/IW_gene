@@ -12,14 +12,12 @@ void LatticeBoltzmann::BoundaryConditions()
 {
   int op[9] = {0, 3, 4, 1, 2, 7, 8, 5, 6};
   int c[4][2] = {{1,0}, {0,1}, {-1,0}, {0, -1}};
-  int nlink, nx, ny; int xp, xm, yp, ym;
-  for(int x=0;x<dims[0];x++)
+  int nlink;
+  for(int x=1;x<dims[0]-1;x++)
     {
-      xp = (x + 1 + dims[0])%dims[0]; xm = (x - 1 + dims[0])%dims[0];
-      for (int y=0;y<dims[1];y++)
+
+      for (int y=1;y<dims[1]-1;y++)
 	{
-	  yp = (y + 1 + dims[1])%dims[1];
-	  ym = (y - 1 + dims[1])%dims[1];
 	  
 	  if(velSites[x][y].isFluidSolid())
 	    {
@@ -32,37 +30,34 @@ void LatticeBoltzmann::BoundaryConditions()
 		    {
 		      if(k < 5 || k == nlink) // BB if link normal to surface
 			{
-			  nx = (x + VelSite::e[k][0] + dims[0])%dims[0];
-			  ny = (y + VelSite::e[k][1] + dims[1])%dims[1];
-
 			  velSites_[x][y].f[op[k]] = velSites[x][y].f[k];
 			}
 		      else
 			{
 			  switch (k) {
 			  case 5:
-			    if (velSites_[x][yp].isFluid())
-			      velSites_[x][y].f[op[k]] = velSites_[xp][y].f[8];
+			    if (velSites_[x][y+1].isFluid())
+			      velSites_[x][y].f[op[k]] = velSites_[x+1][y].f[8];
 			    else
-			      velSites_[x][y].f[op[k]] = velSites_[x][yp].f[6];
+			      velSites_[x][y].f[op[k]] = velSites_[x][y+1].f[6];
 			    break;
 			  case 6:
-			    if (velSites_[x][yp].isFluid())
-			      velSites_[x][y].f[op[k]] = velSites_[xm][y].f[7];
+			    if (velSites_[x][y+1].isFluid())
+			      velSites_[x][y].f[op[k]] = velSites_[x-1][y].f[7];
 			    else
-			      velSites_[x][y].f[op[k]] = velSites_[x][yp].f[5];
+			      velSites_[x][y].f[op[k]] = velSites_[x][y+1].f[5];
 			    break;
 			  case 7:
-			    if (velSites_[x][ym].isFluid())
-			      velSites_[x][y].f[op[k]] = velSites_[xm][y].f[6];
+			    if (velSites_[x][y-1].isFluid())
+			      velSites_[x][y].f[op[k]] = velSites_[x-1][y].f[6];
 			    else
-			      velSites_[x][y].f[op[k]] = velSites_[x][ym].f[8];
+			      velSites_[x][y].f[op[k]] = velSites_[x][y-1].f[8];
 			    break;
 			  case 8:
-			    if (velSites_[x][ym].isFluid())
-			      velSites_[x][y].f[op[k]] = velSites_[xp][y].f[5];
+			    if (velSites_[x][y-1].isFluid())
+			      velSites_[x][y].f[op[k]] = velSites_[x+1][y].f[5];
 			    else
-			      velSites_[x][y].f[op[k]] = velSites_[x][ym].f[7];
+			      velSites_[x][y].f[op[k]] = velSites_[x][y-1].f[7];
 			    break;
 			  }
 			}
@@ -75,7 +70,7 @@ void LatticeBoltzmann::BoundaryConditions()
 	      double Tcold = 0.0; double eu;
 	      double Tinf, Tsup, rho, ub[2], uinf[2], usup[2];
 	      
-	      if(y == dims[1]-1)
+	      if(y == dims[1]-2)
 		{
 		  thermalSites[x][y-1].computeRhoAndU(Tinf);
 		  velSites[x][y-1].computeRhoAndU(rho, uinf);
