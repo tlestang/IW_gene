@@ -43,12 +43,12 @@ void LatticeSite::setFluidTag(FluidTag t)
   tag = t;
 }
 
-void setNormalLink(int k)
+void LatticeSite::setNormalLink(int k)
 {
   normal_link = k;
 }
 
-int getNormalLink()
+int LatticeSite::getNormalLink()
 {
   return normal_link;
 }

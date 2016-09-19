@@ -23,17 +23,15 @@ class LatticeBoltzmann
 		ThermalSite **thermalSites;
 		ThermalSite **thermalSites_;
 
-		/* TopWall *tw; */
-		/* BottomWall *bw; */
-
 		void streamToNeighbors(int x, int y);
+		void BoundaryConditions();
 
 	public:
-		LatticeBoltzmann(const int*, const double*, double, double, int, double);
+		LatticeBoltzmann(const int*, const double*, double, double, double);
 		~LatticeBoltzmann();
 
 		void generateGeometry();
-		void generateTopography();
+		void generateTopography(int);
 		
 		void TagFluidNodes();
 		double InitialCondition_X(int, int);
@@ -43,6 +41,7 @@ class LatticeBoltzmann
 		void setSpgeLayer(int);
 		void getDensityAndVelocityField(double **&, double **&, double ***&);
 		void update();
+
 		
 };
 

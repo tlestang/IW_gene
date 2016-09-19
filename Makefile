@@ -1,15 +1,15 @@
 CXXFLAGS=-O3
 EXECNAME=run_IW
 
-all: LatticeSite.o Walls.o topo.o LatticeBoltzmann.o write_vtk.o main.o
-	g++ -o $(EXECNAME) LatticeSite.o Walls.o topo.o LatticeBoltzmann.o write_vtk.o main.o
+all: LatticeSite.o generateBC.o BC.o LatticeBoltzmann.o write_vtk.o main.o
+	g++ -o $(EXECNAME) LatticeSite.o generateBC.o BC.o LatticeBoltzmann.o write_vtk.o main.o
 
 LatticeSite.o: LatticeSite.cpp
 	g++ -o LatticeSite.o -c LatticeSite.cpp $(CXXFLAGS)
-Walls.o: Walls.cpp
-	g++ -o Walls.o -c Walls.cpp $(CXXFLAGS)
-topo.o: topo.cpp
-	g++ -o topo.o -c topo.cpp $(CXXFLAGS)
+generateBC.o: generateBC.cpp
+	g++ -o generateBC.o -c generateBC.cpp $(CXXFLAGS)
+BC.o: BC.cpp
+	g++ -o BC.o -c BC.cpp $(CXXFLAGS)
 LatticeBoltzmann.o: LatticeBoltzmann.cpp
 	g++ -o LatticeBoltzmann.o -c LatticeBoltzmann.cpp $(CXXFLAGS)
 write_vtk.o: write_vtk.cpp

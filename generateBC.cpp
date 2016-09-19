@@ -13,9 +13,9 @@ void LatticeBoltzmann::generateTopography(int h)
   double a; int yy;
   double uu[2] = {0.0, 0.0};
   
-    for (int xx=0;xx<d[0];xx++)
+    for (int xx=0;xx<dims[0];xx++)
     {
-      a = 2.*M_PI / d[0];
+      a = 2.*M_PI / dims[0];
       yy = floor(h*sin(a*xx)) + h;
       
       for(int y=0;y<yy;y++)
