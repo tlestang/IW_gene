@@ -34,7 +34,6 @@ class LatticeBoltzmann
 
 		void generateGeometry();
 		void generateTopography();
-		void generateTopWall();
 		
 		void TagFluidNodes();
 		double InitialCondition_X(int, int);
