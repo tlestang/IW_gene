@@ -10,7 +10,8 @@ const double VelSite::w[9] = {4.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/3
 
 LatticeSite::LatticeSite()
 {
-
+  //default values
+  normal_link = 0;
 }
 void VelSite::init(SiteType t, double rho, double u[2],
 		   double coef_force_)
@@ -37,6 +38,16 @@ void LatticeSite::setType(SiteType t)
 	type = t;
 }
 
+void LatticeSite::setFluidTag(FluidTag t)
+{
+  tag = t;
+}
+
+void setNormalLink(int k)
+{
+  normal_link = k;
+}
+
 bool LatticeSite::isSolid()
 {
   return type == Solid;
@@ -53,6 +64,8 @@ bool LatticeSite::isInnerFluid()
 {
   return tag == InnerFluid;
 }
+
+
 
 VelSite::VelSite()
 {

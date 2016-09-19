@@ -14,6 +14,7 @@ class LatticeSite
 		double force; 
 		double coef_force;
 		SiteType type; FluidTag tag;
+		int normal_link;
 
 	public:
 
@@ -25,7 +26,8 @@ class LatticeSite
 		bool isSolid(); bool isFluid();
 		bool isFluidSolid(); bool isInnerFluid();
 		void setType(SiteType t);
-		void setTag(FluidTag tag);
+		void setFluidTag(FluidTag tag);
+		void setNormalLink(int);
 		
 };
 

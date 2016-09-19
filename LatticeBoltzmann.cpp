@@ -187,20 +187,123 @@ void LatticeBoltzmann::TagFluidNodes()
 
 		  if(velSites.[nx][ny].isSolid())
 		    {
-		      if(!velSites[x][y].isFluidSolid()){tag = FluidSolid;}
+		      if(!velSites[x][y].isFluidSolid())
+			{
+			  velSites.setFluidTag(LatticeSite::FluidSolid);
+			  velSites_.setFluidTag(LatticeSite::FluidSolid);
+			}
 		      // Matk the node as Boundary node (fluidSOlid)
 		      brLinks[k] = 1;
 		    }
 		  else{
 		    brLinks = 0;
 		  }
+
+		  if (!isSet) {
+		    switch (k) {
+		    case 0:
+		      break;
+
+		    case 1:
+		      if (velSites[x + LatticeSite::e[5][0]][y+ LatticeSite::e[5][1]].isSolid()
+			  && velSites[x + LatticeSite::e[8][0]][y + LatticeSite::e[8][1]].isSolid()
+			  && velSites[x + LatticeSite::e[2][0]][y + LatticeSite::e[2][1]].isFluid()
+			  && velSites[x + LatticeSite::e[4][0]][y + LatticeSite::e[4][1]].isFluid()) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 2:
+		      if (velSites[x + LatticeSite::e[5][0]][y + LatticeSite::e[5][1]].isSolid()
+			  && velSites[x + LatticeSite::e[6][0]][y + LatticeSite::e[6][1]].isSolid()
+			  && velSites[x + LatticeSite::e[1][0]][y + LatticeSite::e[1][1]].isFluid()
+			  && velSites[x + LatticeSite::e[3][0]][y + LatticeSite::e[3][1]].isFluid()) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 3:
+		      if (velSites[x + LatticeSite::e[6][0]][y + LatticeSite::e[6][1]].isSolid()
+			  && velSites[x + LatticeSite::e[7][0]][y + LatticeSite::e[7][1]].isSolid()
+			  && velSites[x + LatticeSite::e[2][0]][y + LatticeSite::e[2][1]].isFluid()
+			  && velSites[x + LatticeSite::e[4][0]][y + LatticeSite::e[4][1]].isFluid()) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 4:
+		      if (velSites[x + LatticeSite::e[7][0]][y + LatticeSite::e[7][1]].isSolid()
+			  && velSites[x + LatticeSite::e[8][0]][y + LatticeSite::e[8][1]].isSolid()
+			  && velSites[x + LatticeSite::e[1][0]][y + LatticeSite::e[1][1]].isFluid()
+			  && velSites[x + LatticeSite::e[3][0]][y + LatticeSite::e[3][1]].isFluid()) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 5:
+		      if ((velSites[x + LatticeSite::e[1][0]][y + LatticeSite::e[1][1]].isFluid()
+			   && velSites[x + LatticeSite::e[2][0]][y + LatticeSite::e[2][1]].isFluid())
+			  || (velSites[x + LatticeSite::e[1][0]][y + LatticeSite::e[1][1]].isSolid()
+			      && velSites[x + LatticeSite::e[2][0]][y + LatticeSite::e[2][1]].isSolid())) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 6:
+		      if ((velSites[x + LatticeSite::e[3][0]][y + LatticeSite::e[3][1]].isFluid()
+			   && velSites[x + LatticeSite::e[2][0]][y + LatticeSite::e[2][1]].isFluid())
+			  || (velSites[x + LatticeSite::e[3][0]][y + LatticeSite::e[3][1]].isSolid()
+			      && velSites[x + LatticeSite::e[2][0]][y + LatticeSite::e[2][1]].isSolid())) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 7:
+		      if ((velSites[x + LatticeSite::e[3][0]][y + LatticeSite::e[3][1]].isFluid()
+			   && velSites[x + LatticeSite::e[4][0]][y + LatticeSite::e[4][1]].isFluid())
+			  || (velSites[x + LatticeSite::e[3][0]][y + LatticeSite::e[3][1]].isSolid()
+			      && velSites[x + LatticeSite::e[4][0]][y + LatticeSite::e[4][1]].isSolid())) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+		    case 8:
+		      if ((velSites[x + LatticeSite::e[1][0]][y + LatticeSite::e[1][1]].isFluid()
+			   && velSites[x + LatticeSite::e[4][0]][y + LatticeSite::e[4][1]].isFluid())
+			  || (velSites[x + LatticeSite::e[1][0]][y + LatticeSite::e[1][1]].isSolid()
+			      && velSites[x+ LatticeSite::e[4][0]][y + LatticeSite::e[4][1]].isSolid())) {
+			isSet = true;
+			velSites[x][y].setNormalLink(k);
+			velSites_[x][y].setNormalLink(k);
+		      }
+		      break;
+
+		    default:
+		      cout << "error in tagging fluid nodes"
+			   << endl;
+		    }
+		  }
 		}
 	    }
 	}
     }
 }
+								
+							
+						
+					
 
 		  
+	
+		  
+
 
 
 void LatticeBoltzmann::getDensityAndVelocityField(double **&tp,
