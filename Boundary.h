@@ -8,6 +8,7 @@ class Boundary{
 protected:
   int nbNodes;
   int **nodes;
+  int dims[2];
 public:
   Boundary();
   virtual void BoundaryCondition() = 0;

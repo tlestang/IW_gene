@@ -15,7 +15,7 @@ void write_fluid_vtk(int, int, int, double**, double***, const char*);
 int main(int argc, char *argv[])
 {
 
-  string folderName = "test_temp/";
+  string folderName = "test_master/";
   string instru = "mkdir " + folderName;
   system(instru.c_str());
   instru = "mkdir " + folderName + "vtk_fluid/";
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   LatticeBoltzmann *lb;
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta, u0, h, N2);
-  lb->setSpgeLayer(floor((Dy-1)/4));
+  lb->setSpgeLayer(floor((Dy-1)/2));
 
   lb->getDensityAndVelocityField(temp, rho, velocity);
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%1000 == 0)
+      if(i%10 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;

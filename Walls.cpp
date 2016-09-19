@@ -9,6 +9,7 @@ Boundary::Boundary()
 TopWall::TopWall(const int d[2])
 {
   nbNodes = d[0];
+  dims[0] = d[0]; dims[1] = d[1];
   nodes = new int*[nbNodes];
   for (int i=0;i<nbNodes;i++)
     {nodes[i] = new int[2];}
@@ -41,13 +42,15 @@ void TopWall::BoundaryCondition(VelSite **sites, VelSite **_sites)
 
 void TopWall::FreeSlipBC(VelSite **sites, VelSite **_sites)
 {
-  int x,y;
+  int x,y; int xm, xp;
   for (int i=0;i<nbNodes;i++)
     {
       x = nodes[i][0]; y = nodes[i][1];
-      _sites[x][y].f[7] = _sites[x][y].f[6];
-      _sites[x][y].f[4] = _sites[x][y].f[2];
-      _sites[x][y].f[8] = _sites[x][y].f[5];
+      xp = (x + 1 + dims[0])%dims[0];
+      xm = (x - 1 + dims[0])%dims[0];
+      _sites[x][y].f[7] = sites[xp][y].f[6];
+      _sites[x][y].f[4] = sites[x][y].f[2];
+      _sites[x][y].f[8] = sites[xm][y].f[5];
     }
 }
 
