@@ -8,18 +8,12 @@ Boundary::Boundary()
 
 TopWall::TopWall(const int d[2])
 {
-  nbNodes = d[0];
   dims[0] = d[0]; dims[1] = d[1];
-  nodes = new int*[nbNodes];
-  for (int i=0;i<nbNodes;i++)
-    {nodes[i] = new int[2];}
-
-  int cc = 0;
-
+  int y = dims[1]-1;
   for (int x=0;x<d[0];x++)
     {
-      nodes[cc][0] = x; nodes[cc][1] = d[1]-1;
-      cc += 1;
+      sites[x][y].init(LatticeSite::Solid, 1.0, u0, 0);
+      _sites[x][y].init(LatticeSite::Solid, 1.0, u0, 0);
     }
 }
 

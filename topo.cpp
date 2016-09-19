@@ -9,54 +9,23 @@
 Topography::Topography(const int d[2], int h, double ***u,
 		       VelSite **sites, VelSite **_sites)
 {
-  nbNodes = d[0];
+  dims[0] = d[0]; dims[1]=d[1];
   double u0[2] = {0.0, 0.0};
   int x,y;
-  lbl = new int[nbNodes];
-  nodes = new int*[nbNodes];
-  for (int i=0;i<nbNodes;i++)
-    {nodes[i] = new int[2];}
 
   double a;
-  int cc = 0;
   for (int xx=0;xx<d[0];xx++)
     {
-      nodes[cc][0] = xx;
       a = 2.*M_PI / d[0];
-      nodes[cc][1] = floor(h*sin(a*xx)) + h;
+      yy = floor(h*sin(a*xx)) + h;
       
-      for(int yy=0;yy<nodes[cc][1];yy++)
+      for(int y=0;y<yy;y++)
 	{
-	  sites[xx][yy].init(LatticeSite::Solid, 1.0, u0, 0);
-	  _sites[xx][yy].init(LatticeSite::Solid, 1.0, u0, 0);
+	  sites[xx][y].init(LatticeSite::Solid, 1.0, u0, 0);
+	  _sites[xx][y].init(LatticeSite::Solid, 1.0, u0, 0);
 	}
             
-      cc += 1;
     }
-
-  for(int i=1;i<nbNodes-1;i++)
-    {
-      x = nodes[i][0]; y = nodes[i][1];
-      if(nodes[i-1][1] == (y-1) && nodes[i+1][1 == (y+1)]){lbl[i]=2; }
-      else if(nodes[i-1][1] == nodes[i+1][1]){lbl[i]=1;}
-      else if((nodes[i-1][1] == (y-1) && nodes[i+1][1] == y) || (nodes[i-1][1] == y && nodes[i+1][1] == y-1) ){lbl[i] = 2;}
-      else{lbl[i] = 0;}
-    }
-  
-  x = nodes[0][0]; y = nodes[0][1];
-  if(nodes[nbNodes-1][0] == nodes[1][0]){lbl[0]=2;}
-  else if(nodes[nbNodes-1][1] == nodes[1][1]){lbl[0]=1;}
-  else if((nodes[nbNodes-1][1] == (y-1) && nodes[1][1] == y) || (nodes[nbNodes-1][1] == y && nodes[1][1] == y-1) ){lbl[0] = 2;}
-  else{lbl[0] = 0;}
-  
-  x = nodes[nbNodes-1][0]; y = nodes[nbNodes-1][1];
-  if(nodes[nbNodes-2][0] == nodes[0][0]){lbl[nbNodes-1]=2;}
-  else if(nodes[nbNodes-2][1] == nodes[0][1]){lbl[nbNodes-1]=1;}
-  else if((nodes[nbNodes-2][1] == (y-1) && nodes[0][1] == y) || (nodes[nbNodes-2][1] == y && nodes[0][1] == y-1) ){lbl[nbNodes-1] = 2;}
-  else{lbl[nbNodes-1] = 0;}
-
-
-  
 }
 
 void Topography::BoundaryCondition()
@@ -66,7 +35,7 @@ void Topography::BoundaryCondition()
 
 void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 {
-  int x,y;
+  int x,y, xm, xp;
   int op[9] = {0, 1, 4, 3, 2, 6, 5, 8, 7};
   double dd; int cc= 0;
 
@@ -75,27 +44,26 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
   for (int i=0;i<nbNodes;i++)
     {
       x = nodes[i][0]; y = nodes[i][1];
+      xp = (x + 1 + dims[0])%dims[0];
+      xm = (x - 1 + dims[0])%dims[0];
 
-      if(lbl[i] == 1)
+      if(lbl[i] == 1) //Wall nodes
 	{
-	  _sites[x][y].f[6] = _sites[x][y].f[7];
-	  _sites[x][y].f[2] = _sites[x][y].f[4];
-	  _sites[x][y].f[5] = _sites[x][y].f[8];
+	  _sites[x][y].f[6] = sites[xp][y].f[7];
+	  _sites[x][y].f[2] = sites[x][y].f[4];
+	  _sites[x][y].f[5] = sites[xm][y].f[8];
 	  // ts << x << " " << y << endl;
 	  // cc += 1;
 	}
-      else if(lbl[i] == 2)
+      else if(lbl[i] == 2) //External corner nodes
 	{
 	  if(nodes[i][0] == 0 || nodes[i][0] == nbNodes-1){dd = +1;}
 	  else{dd = (nodes[i+1][1]-nodes[i-1][1])/2.;}
 
 	  if(dd > 0.) // if mur gauche
 	    {
-	      _sites[x][y].f[2] = sites[x][y].f[4];
-	      if (x == nbNodes-1){
-		_sites[x][y].f[6] = sites[0][y].f[7];}
-	      else{
-		_sites[x][y].f[6] = sites[x+1][y].f[7];}
+	      //_sites[x][y].f[2] = sites[x][y].f[4];
+	      _sites[x][y].f[6] = sites[x][y].f[8];
 	      // _sites[x][y].f[6] = _sites[x][y].f[5];
 	      // _sites[x][y].f[7] = _sites[x][y].f[8];
 	      // _sites[x][y].f[3] = _sites[x][y].f[1];
@@ -104,12 +72,8 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 	    }
 	  else
 	    {
-	      _sites[x][y].f[2] = sites[x][y].f[4];
-	      if(x == 0)
-		{
-		  _sites[x][y].f[5] = sites[nbNodes-1][y].f[8];}
-	      else{
-		_sites[x][y].f[5] = sites[x-1][y].f[8];}
+	      //_sites[x][y].f[2] = sites[x][y].f[4];
+	      _sites[x][y].f[5] = sites[x][y].f[7];
 	      // _sites[x][y].f[5] = _sites[x][y].f[6];
 	      // _sites[x][y].f[8] = _sites[x][y].f[7];
 	      // _sites[x][y].f[1] = _sites[x][y].f[3];
@@ -117,37 +81,33 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
 	      // cc += 1;
 	    }
 	}
-      else
-	{
-	  if(nodes[i][0] == 0 || nodes[i][0] == nbNodes-1){dd = +1;}
-	  else{dd = (nodes[i+1][1]-nodes[i-1][1])/2.;}
-	  if(dd > 0)
-	    {
-	      _sites[x][y].f[2] = sites[x][y].f[op[2]];
-	      _sites[x][y].f[5] = sites[x][y].f[op[5]];
-	      if(x == nbNodes-1){
-		_sites[x][y].f[6] = sites[0][y].f[7];}
-	      else{
-		_sites[x][y].f[6] = sites[x+1][y].f[7];}
-	    }
-	  else
-	    {
-	      _sites[x][y].f[2] = sites[x][y].f[op[2]];
-	      _sites[x][y].f[6] = sites[x][y].f[op[6]];
-	      if(x == 0)
-		{
-		  _sites[x][y].f[5] = sites[nbNodes-1][y].f[8];}
-	      else{
-		_sites[x][y].f[5] = sites[x-1][y].f[8];}
-	    }
+
+      else //BB nodes (internal corner nodes)
+      	{
+      	  if(nodes[i][0] == 0 || nodes[i][0] == nbNodes-1){dd = +1;}
+      	  else{dd = (nodes[i+1][1]-nodes[i-1][1])/2.;}
+      	  if(dd > 0)
+      	    {
+      	      _sites[x][y].f[2] = sites[x][y].f[op[2]];
+	      _sites[x][y].f[1] = sites[x][y].f[op[1]];
+      	      _sites[x][y].f[5] = sites[x][y].f[op[5]];
+
+	      _sites[x][y].f[8] = sites[x][y+1].f[7];
+      	      _sites[x][y].f[6] = sites[xp][y].f[7];
+      	    }
+      	  else
+      	    {
+      	      _sites[x][y].f[2] = sites[x][y].f[op[2]];
+      	      _sites[x][y].f[6] = sites[x][y].f[op[6]];
+	      _sites[x][y].f[3] = sites[x][y].f[op[3]];
 	      
-
-	  // bb << x << " " << y << endl;
-	  // cc += 1;
-	}
+      	      _sites[x][y].f[5] = sites[xm][y].f[8];
+	      _sites[x][y].f[7] = sites[x][y+1].f[8];
+      	    }
+       	}
     }
-
 }
+
 
 void Topography::TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
 				   double **T, double ***u)

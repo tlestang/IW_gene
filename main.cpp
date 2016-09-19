@@ -101,11 +101,11 @@ int main(int argc, char *argv[])
   LatticeBoltzmann *lb;
 
   lb = new LatticeBoltzmann(dims, omega, gr*beta, u0, h, N2);
-  lb->setSpgeLayer(floor((Dy-1)/2));
+  lb->setSpgeLayer(floor((Dy-1)/4));
 
   lb->getDensityAndVelocityField(temp, rho, velocity);
 
-  int N = 1600000;
+  int N = 160000;
   int k = 0; int tt = 0;
   double d;
   ofstream lulu("grad.dat");
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%10 == 0)
+      if(i%1000 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;

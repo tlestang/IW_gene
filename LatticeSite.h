@@ -5,16 +5,18 @@ class LatticeSite
 {
 	public:
 		enum SiteType {Fluid = 'f', Solid = 'b', Null = 'n'};
+		enum FluidTag {FluidSolid = 'b', InnerFluid = 'i', DefaultTag='y'};
 
 		double f[9];
 
 	protected:
 		int q;
 		double force; 
-		SiteType type;
 		double coef_force;
+		SiteType type; FluidTag tag;
 
 	public:
+
 		LatticeSite();
 		virtual double fEq(int k, double rho, double u[2]) = 0;
 		virtual void computeRhoAndU(double& rho, double u[2]) = 0;
@@ -23,6 +25,8 @@ class LatticeSite
 		bool isSolid();
 		bool isFluid();
 		void setType(SiteType t);
+		voi setTag(FluidTag tag);
+		
 };
 
 class VelSite : public LatticeSite
