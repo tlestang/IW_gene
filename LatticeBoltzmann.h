@@ -10,7 +10,7 @@ class LatticeBoltzmann
 		int dims[2];
 		double omega[2];
 		double coef_force;
-		double u0, N2, h;
+		double u0, N2;
 		double spgeFirstNode, ySpge;
 		
 		double **rho;
@@ -23,9 +23,6 @@ class LatticeBoltzmann
 		ThermalSite **thermalSites;
 		ThermalSite **thermalSites_;
 
-		TopWall *w;
-		Topography *topo;
-
 		/* TopWall *tw; */
 		/* BottomWall *bw; */
 
@@ -36,6 +33,9 @@ class LatticeBoltzmann
 		~LatticeBoltzmann();
 
 		void generateGeometry();
+		void generateTopography();
+		void generateTopWall();
+		
 		void TagFluidNodes();
 		double InitialCondition_X(int, int);
 		double InitialCondition_Y(int, int);
