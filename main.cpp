@@ -108,11 +108,8 @@ int main(int argc, char *argv[])
   int N = 1600000;
   int k = 0; int tt = 0;
   double d;
-  ofstream lulu("grad.dat");
   for (int i=0;i<N;i++)
     {
-      d = temp[50][dims[1]-1] - temp[50][dims[1]-2];
-      lulu << i << " " << d << endl;
 
       lb->update();
       if(i%(N/100)==0)
@@ -126,5 +123,4 @@ int main(int argc, char *argv[])
       	  tt++;
       	}
     }    
-  lulu.close();
 }

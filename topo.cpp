@@ -24,7 +24,6 @@ Topography::Topography(const int d[2], int h, double ***u,
       nodes[cc][0] = xx;
       a = 2.*M_PI / d[0];
       nodes[cc][1] = floor(h*sin(a*xx)) + h;
-      
       for(int yy=0;yy<nodes[cc][1];yy++)
 	{
 	  sites[xx][yy].init(LatticeSite::Solid, 1.0, u0, 0);
@@ -37,9 +36,19 @@ Topography::Topography(const int d[2], int h, double ***u,
   for(int i=1;i<nbNodes-1;i++)
     {
       x = nodes[i][0]; y = nodes[i][1];
-      if(nodes[i-1][1] == (y-1) && nodes[i+1][1 == (y+1)]){lbl[i]=2; }
+      if(nodes[i-1][1] == (y-1) && nodes[i+1][1] == (y+1)){lbl[i]=2; } //3 pts aligned along y
       else if(nodes[i-1][1] == nodes[i+1][1]){lbl[i]=1;}
-      else if((nodes[i-1][1] == (y-1) && nodes[i+1][1] == y) || (nodes[i-1][1] == y && nodes[i+1][1] == y-1) ){lbl[i] = 2;}
+      else if((nodes[i-1][1] == (y-1) && nodes[i+1][1] == y) || (nodes[i-1][1] == y && nodes[i+1][1] == y-1) )
+	{
+	  if(y == 2*h-1)
+	    {
+	      lbl[i] == 1;
+	    }
+	  else
+	    {
+	      lbl[i] = 2;
+	    }
+	}
       else{lbl[i] = 0;}
     }
   
