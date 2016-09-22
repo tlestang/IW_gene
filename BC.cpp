@@ -13,6 +13,7 @@ void LatticeBoltzmann::BoundaryConditions()
   int op[9] = {0, 3, 4, 1, 2, 7, 8, 5, 6};
   int c[4][2] = {{1,0}, {0,1}, {-1,0}, {0, -1}};
   int nlink;
+
   for(int x=1;x<dims[0]-1;x++)
     {
 
@@ -22,7 +23,7 @@ void LatticeBoltzmann::BoundaryConditions()
 	  if(velSites[x][y].isFluidSolid())
 	    {
 	      // -------- Velocity Boundary Conditions -------------
-	      
+
 	      nlink = velSites[x][y].getNormalLink();
 	      for(int k=0;k<9;k++)
 		{

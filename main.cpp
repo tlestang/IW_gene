@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
   // Now compute simulation parameters from physical values.
   //Lattice velocity set to 0.1 (Low Ma limit).
-  double u0 = 0.001;
+  double u0 = 0.01;
   double delta_x = D/(Dx-1);
   double delta_t = (delta_x*u0)/U0;
   //double gr = 9.8*(delta_t*delta_t/delta_x);

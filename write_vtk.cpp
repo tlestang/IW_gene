@@ -50,7 +50,7 @@ void write_fluid_vtk(int time, int Dx, int Dy, double **T, double ***u, const ch
   output_file << "VECTORS velocity_vector float\n";
   for(int Y = 0; Y < Dy ; ++Y)
     for(int X = 0; X < Dx; ++X)
-      output_file << u[X][Y][0] -u0 << " " << u[X][Y][1] << " 0\n";
+      output_file << u[X][Y][0] << " " << u[X][Y][1] << " 0\n";
 
   /// Close file
   output_file.close();

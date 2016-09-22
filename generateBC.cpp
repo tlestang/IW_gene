@@ -15,8 +15,8 @@ void LatticeBoltzmann::generateTopography(int h)
   
     for (int xx=1;xx<dims[0]-1;xx++)
     {
-      a = 2.*M_PI / (dims[0]-2);
-      yy = floor(h*sin(a*(xx-1))) + h + 1; // +1 because there are ghost nodes underneath
+      a = 2.*M_PI / (dims[0]);
+      yy = floor(h*cos(a*(xx))) + h + 1; // +1 because there are ghost nodes underneath
       
       for(int y=1;y<yy;y++)
 	{

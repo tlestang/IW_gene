@@ -84,9 +84,9 @@ void LatticeBoltzmann::update()
   VelSite **swapVel;
   double om, a, dSpge;
 
-  	for (int x=1; x<dims[0]-1; x++)
+  	for (int x=0; x<dims[0]; x++)
 	{
-		for (int y=1; y<dims[1]-1; y++)
+		for (int y=0; y<dims[1]; y++)
 		{
 		  if(velSites[x][y].isFluid())
 		    {
@@ -108,12 +108,65 @@ void LatticeBoltzmann::update()
 
 		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], om);
 		  thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
-		  
-		  streamToNeighbors(x, y);
 		    }
 		}
-
 	}
+
+		  //update ghost nodes
+	for(int y=1; y<dims[1]-1; y++){
+	  for(int u=0; u<9; u++){
+	    velSites_[0][y].f[u]=velSites_[dims[0]-2][y].f[u];
+	    velSites_[dims[0]-1][y].f[u]=velSites_[1][y].f[u];
+	  }
+	}
+	
+	for (int x =1; x < dims[0]-1; x++) {
+	  for (int y = 1; y < dims[1]-1; y++) {
+	    if(velSites[x][y].isFluid())
+	      streamToNeighbors(x, y);
+	  }
+	}
+
+// streaming of ghost nodes
+		for(int y = 1; y < dims[1]-1; y++) {
+			int x, k, nx, ny;
+			x=0;
+
+			k=1;
+			nx = x + VelSite::e[k][0];
+			ny = y + VelSite::e[k][1];
+			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+
+			k=5;
+			nx = x + VelSite::e[k][0];
+			ny = y + VelSite::e[k][1];
+			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+
+			k=8;
+			nx = x + VelSite::e[k][0];
+			ny = y + VelSite::e[k][1];
+			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+
+
+			x=dims[0]-1;
+
+			k=3;
+			nx = x + VelSite::e[k][0];
+			ny = y + VelSite::e[k][1];
+			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+
+			k=6;
+			nx = x + VelSite::e[k][0];
+			ny = y + VelSite::e[k][1];
+			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+
+			k=7;
+			nx = x + VelSite::e[k][0];
+			ny = y + VelSite::e[k][1];
+			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+			}
+
+
 	BoundaryConditions();
 
 	swapT = thermalSites;
@@ -154,26 +207,26 @@ void LatticeBoltzmann::generateGeometry()
 
 	TT = 0.0;
 	//Initialize Ghost Nodes
-	for(int y=0;y<dims[1];y++)
+	for(int y=1;y<dims[1]-1;y++)
 	  {
-	    velSites[0][y].init(LatticeSite::Solid, 1.0, unull,
+	    velSites[0][y].init(LatticeSite::Fluid, 1.0, unull,
 				coef_force);
-	    velSites_[0][y].init(LatticeSite::Solid, 1.0, unull,
+	    velSites_[0][y].init(LatticeSite::Fluid, 1.0, unull,
 				 coef_force);
-	    thermalSites[0][y].init(LatticeSite::Solid, TT, unull,
+	    thermalSites[0][y].init(LatticeSite::Fluid, TT, unull,
 				    coef_force);
-	    thermalSites_[0][y].init(LatticeSite::Solid, TT, unull,
+	    thermalSites_[0][y].init(LatticeSite::Fluid, TT, unull,
 				     coef_force);
-	    velSites[dims[0]-1][y].init(LatticeSite::Solid, 1.0, unull,
+	    velSites[dims[0]-1][y].init(LatticeSite::Fluid, 1.0, unull,
 				coef_force);
-	    velSites_[dims[0]-1][y].init(LatticeSite::Solid, 1.0, unull,
+	    velSites_[dims[0]-1][y].init(LatticeSite::Fluid, 1.0, unull,
 				 coef_force);
-	    thermalSites[dims[0]-1][y].init(LatticeSite::Solid, TT, unull,
+	    thermalSites[dims[0]-1][y].init(LatticeSite::Fluid, TT, unull,
 				    coef_force);
-	    thermalSites_[dims[0]-1][y].init(LatticeSite::Solid, TT, unull,
+	    thermalSites_[dims[0]-1][y].init(LatticeSite::Fluid, TT, unull,
 				     coef_force);
 	  }
-	for(int x=1;x<dims[0]-1;x++)
+	for(int x=0;x<dims[0];x++)
 	  {
 	    velSites[x][0].init(LatticeSite::Solid, 1.0, unull,
 				coef_force);
@@ -192,17 +245,17 @@ void LatticeBoltzmann::generateGeometry()
 	    thermalSites_[x][dims[1]-1].init(LatticeSite::Solid, TT, unull,
 				     coef_force);
 	  }
+
 }
 
 void LatticeBoltzmann::TagFluidNodes()
 {
   int nx, ny; bool isSet;
   
-  for(int x=0;x<dims[0];x++)
+  for(int x=1;x<dims[0]-1;x++)
     {
-      for (int y=0;y<dims[1];y++)
+      for (int y=1;y<dims[1]-1;y++)
 	{
-	  
 	  if(velSites[x][y].isFluid())
 	    {
 	      isSet = false;
