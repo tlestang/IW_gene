@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%10 == 0)
+      if(i%100 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;
