@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   double beta = 1;
   double nu, kappa, tau_prim, N2;
   int h;
-  int Dx, Dy;
+  int Dx, Dy; double gr;
 
   ifstream input_file(argv[1]);
   if(input_file.is_open())
@@ -61,8 +61,6 @@ int main(int argc, char *argv[])
   double u0 = 0.01;
   double delta_x = D/(Dx-1);
   double delta_t = (delta_x*u0)/U0;
-  //double gr = 9.8*(delta_t*delta_t/delta_x);
-  double gr = 0.0001;
 
   //Lattice viscosity is set so that tau = 0.51 which is expected to be stable enough.
   double tau = 0.6;
@@ -74,7 +72,7 @@ int main(int argc, char *argv[])
   h = floor(hb/delta_x);
   cout << asp << " " << Dx << " " << endl;
   Dy = asp*(Dx-1) + 1; N2 = delta_t*delta_t*N2Phi;
-
+  gr = N2*(Dy-1); // So that T = 1 on top of the domain
   ofstream paramFile("parameters.datout");
   paramFile << "PHYSICAL SETUP IN LATTICE UNITS" << endl;
   paramFile << "--------------------" << endl;
