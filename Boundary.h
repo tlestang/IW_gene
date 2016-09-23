@@ -21,6 +21,7 @@ class TopWall : public Boundary{
   virtual void BoundaryCondition();
   virtual void BoundaryCondition(VelSite **sites, VelSite **_sites);
   void FreeSlipBC(VelSite **sites, VelSite **_sites);
+  void HalfWayFreeSlipBC(VelSite **sites, VelSite **_sites);
   void TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
 		     double **T, double ***u);
 
@@ -45,6 +46,7 @@ class Topography : public Boundary{
   Topography(const int d[2], int h, double*** u, VelSite**, VelSite**);
   virtual void BoundaryCondition();
   void FreeSlipBC(VelSite **sites, VelSite **_sites);
+  void HalfWayFreeSlipBC(VelSite **sites, VelSite **_sites);
   void TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
 		     double **T, double ***u);
 };

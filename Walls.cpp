@@ -42,12 +42,30 @@ void TopWall::BoundaryCondition(VelSite **sites, VelSite **_sites)
 void TopWall::FreeSlipBC(VelSite **sites, VelSite **_sites)
 {
   int x,y;
+  
   for (int i=0;i<nbNodes;i++)
     {
       x = nodes[i][0]; y = nodes[i][1];
       _sites[x][y].f[7] = _sites[x][y].f[6];
       _sites[x][y].f[4] = _sites[x][y].f[2];
       _sites[x][y].f[8] = _sites[x][y].f[5];
+    }
+}
+
+void TopWall::HalfWayFreeSlipBC(VelSite **sites, VelSite **_sites)
+{
+  int x,y;
+  int xm, xp;
+  
+  for (int i=0;i<nbNodes;i++)
+    {
+      x = nodes[i][0]; y = nodes[i][1];
+      xp = (x + 1 + nbNodes)%nbNodes; 
+      xm = (x - 1 + nbNodes)%nbNodes; 
+      
+      _sites[x][y].f[7] = sites[xp][y].f[6];
+      _sites[x][y].f[4] = sites[x][y].f[2];
+      _sites[x][y].f[8] = sites[xm][y].f[5];
     }
 }
 

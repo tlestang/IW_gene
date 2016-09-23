@@ -124,8 +124,8 @@ void LatticeBoltzmann::update()
 
 	}
 
-	w->FreeSlipBC(velSites, velSites_);
-	topo->FreeSlipBC(velSites, velSites_);
+	w->HalfWayFreeSlipBC(velSites, velSites_);
+	topo->HalfWayFreeSlipBC(velSites, velSites_);
 	//wb->FreeSlipBC(velSites, velSites_);
 
 	w->TemperatureBC(velSites_, thermalSites_, T, u);

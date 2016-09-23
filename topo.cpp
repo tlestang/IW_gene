@@ -38,19 +38,10 @@ Topography::Topography(const int d[2], int h, double ***u,
       x = nodes[i][0]; y = nodes[i][1];
       if(nodes[i-1][1] == (y-1) && nodes[i+1][1] == (y+1)){lbl[i]=2; } //3 pts aligned along y
       else if(nodes[i-1][1] == nodes[i+1][1]){lbl[i]=1;}
-      else if((nodes[i-1][1] == (y-1) && nodes[i+1][1] == y) || (nodes[i-1][1] == y && nodes[i+1][1] == y-1) )
-	{
-	  if(y == 2*h-1)
-	    {
-	      lbl[i] == 1;
-	    }
-	  else
-	    {
-	      lbl[i] = 2;
-	    }
-	}
+      else if((nodes[i-1][1] == (y-1) && nodes[i+1][1] == y) || (nodes[i-1][1] == y && nodes[i+1][1] == y-1) ){lbl[i] = 2;}
       else{lbl[i] = 0;}
     }
+
   
   x = nodes[0][0]; y = nodes[0][1];
   if(nodes[nbNodes-1][0] == nodes[1][0]){lbl[0]=2;}
@@ -133,6 +124,65 @@ void Topography::FreeSlipBC(VelSite **sites, VelSite **_sites)
     }
 
 }
+
+void Topography::HalfWayFreeSlipBC(VelSite **sites, VelSite **_sites)
+{  int x,y, xm, xp;
+  int op[9] = {0, 1, 4, 3, 2, 6, 5, 8, 7};
+  double dd; int cc= 0;
+
+  // ofstream bb, lns, rns, ts;
+  // bb.open("bb.dat");lns.open("lns.dat");rns.open("rns.dat");ts.open("ts.dat");
+  for (int i=0;i<nbNodes;i++)
+    {
+      x = nodes[i][0]; y = nodes[i][1];
+      xp = (x + 1 + nbNodes)%nbNodes; 
+      xm = (x - 1 + nbNodes)%nbNodes; 
+      //flat wall
+      if(lbl[i] == 1)
+	{
+	  _sites[x][y].f[6] = sites[xm][y].f[7];
+	  _sites[x][y].f[2] = sites[x][y].f[4];
+	  _sites[x][y].f[5] = sites[xp][y].f[8];
+	}
+
+      //External corner
+       else if(lbl[i] == 2)
+	{
+	  if(nodes[i][0] == 0 || nodes[i][0] == nbNodes-1){dd = +1;}
+	  else{dd = (nodes[i+1][1]-nodes[i-1][1])/2.;}
+
+	  if(dd > 0.) // if mur gauche
+	    {
+	      _sites[x][y].f[6] = sites[x][y].f[8];
+	    }
+	  else
+	    {
+	      _sites[x][y].f[5] = sites[x][y].f[7];
+	    }
+	}
+      
+      // internal corner
+       else{
+	 if(nodes[i][0] == 0 || nodes[i][0] == nbNodes-1){dd = +1;}
+	 else{dd = (nodes[i+1][1]-nodes[i-1][1])/2.;}
+	 if(dd > 0.)
+	   {
+	     _sites[x][y].f[2] = sites[x][y].f[4];
+	     _sites[x][y].f[3] = sites[x][y].f[1];
+	     _sites[x][y].f[6] = sites[x][y].f[8];
+	     _sites[x][y].f[5] = sites[xm][y].f[8];
+	   }
+	 else
+	   {
+	     _sites[x][y].f[2] = sites[x][y].f[4];
+	     _sites[x][y].f[1] = sites[x][y].f[3];
+	     _sites[x][y].f[5] = sites[x][y].f[7];
+	     _sites[x][y].f[6] = sites[xp][y].f[7];
+	   }
+       }
+    }
+}
+
 
 void Topography::TemperatureBC(VelSite **velSites, ThermalSite **thermalSites,
 				   double **T, double ***u)
