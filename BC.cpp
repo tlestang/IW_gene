@@ -12,7 +12,7 @@ void LatticeBoltzmann::BoundaryConditions()
 {
   int op[9] = {0, 3, 4, 1, 2, 7, 8, 5, 6};
   int c[4][2] = {{1,0}, {0,1}, {-1,0}, {0, -1}};
-  int nlink;
+  int nlink, nx, ny;
 
   for(int x=1;x<dims[0]-1;x++)
     {
@@ -31,7 +31,9 @@ void LatticeBoltzmann::BoundaryConditions()
 		    {
 		      if(k < 5 || k == nlink) // BB if link normal to surface
 			{
-			  velSites_[x][y].f[op[k]] = velSites[x][y].f[k];
+			  nx = x + VelSite::e[k][0];
+			  ny = y + VelSite::e[k][1];
+			  velSites_[x][y].f[op[k]] = velSites_[nx][ny].f[k];
 			}
 		      else
 			{
@@ -72,35 +74,35 @@ void LatticeBoltzmann::BoundaryConditions()
 	      double Tinf, Tsup, rho, ub[2], uinf[2], usup[2];
 	      
 	      if(y == dims[1]-2)
-		{
-		  thermalSites[x][y-1].computeRhoAndU(Tinf);
-		  velSites[x][y-1].computeRhoAndU(rho, uinf);
-		  velSites[x][y].computeRhoAndU(rho, ub);
+	      	{
+	      	  thermalSites_[x][y-1].computeRhoAndU(Tinf);
+	      	  velSites_[x][y-1].computeRhoAndU(rho, uinf);
+	      	  velSites_[x][y].computeRhoAndU(rho, ub);
 		  
-		  for (int k=0;k<4;k++)
-		    {
-		      eu = c[k][0]*ub[0] + c[k][1]*ub[1];
-		      thermalSites[x][y].f[k] = (Tinf/4.)*(1.+2.*eu)
-			+ thermalSites[x][y-1].f[k]
-			- thermalSites[x][y-1].fEq(k,Tinf,uinf);
-		    }
-		}
+	      	  for (int k=0;k<4;k++)
+	      	    {
+	      	      eu = c[k][0]*ub[0] + c[k][1]*ub[1];
+	      	      thermalSites_[x][y].f[k] = (Tinf/4.)*(1.+2.*eu)
+	      		+ thermalSites_[x][y-1].f[k]
+	      		- thermalSites_[x][y-1].fEq(k,Tinf,uinf);
+	      	    }
+	      	}
 	      else //bottom wall (topography)
-		{
+	      	{
 
-		  thermalSites[x][y+1].computeRhoAndU(Tsup);
-		  velSites[x][y+1].computeRhoAndU(rho, usup);
-		  velSites[x][y].computeRhoAndU(rho, ub);
+	      	  thermalSites_[x][y+1].computeRhoAndU(Tsup);
+	      	  velSites_[x][y+1].computeRhoAndU(rho, usup);
+	      	  velSites_[x][y].computeRhoAndU(rho, ub);
       
-		  for (int k=0;k<4;k++)
-		    {
-		      eu = c[k][0]*ub[0] + c[k][1]*ub[1];
-		      thermalSites[x][y].f[k] = (Tsup/4.)*(1.+ 2.*eu)
-			+ thermalSites[x][y+1].f[k]
-			- thermalSites[x][y+1].fEq(k,Tsup,usup);
-		    }
+	      	  for (int k=0;k<4;k++)
+	      	    {
+	      	      eu = c[k][0]*ub[0] + c[k][1]*ub[1];
+	      	      thermalSites_[x][y].f[k] = (Tsup/4.)*(1.+ 2.*eu)
+	      		+ thermalSites_[x][y+1].f[k]
+	      		- thermalSites_[x][y+1].fEq(k,Tsup,usup);
+	      	    }
 	
-		}
+	      	}
 	    }
 	}
     }

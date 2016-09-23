@@ -84,98 +84,112 @@ void LatticeBoltzmann::update()
   VelSite **swapVel;
   double om, a, dSpge;
 
-  	for (int x=0; x<dims[0]; x++)
+  for (int x=0; x<dims[0]; x++)
+    {
+      for (int y=0; y<dims[1]; y++)
 	{
-		for (int y=0; y<dims[1]; y++)
-		{
-		  if(velSites[x][y].isFluid())
-		    {
+	  if(velSites[x][y].isFluid())
+	    {
 		      
-		  velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
-		  thermalSites[x][y].computeRhoAndU(T[x][y]);
+	      velSites[x][y].computeRhoAndU(rho[x][y], u[x][y]);
+	      thermalSites[x][y].computeRhoAndU(T[x][y]);
 
 		  
-		  if(y>(spgeFirstNode-1))
-		    {
-		      if(y>ySpge){om = 0.001*omega[0];}
-		      else{
-			dSpge = ySpge-spgeFirstNode;
-			a = (y-spgeFirstNode)/dSpge;
-			om = (1.-0.999*a*a)*omega[0];
-		      }
-		    }
-		  else{om = omega[0];}
+	      // if(y>(spgeFirstNode-1))
+	      // 	{
+	      // 	  if(y>ySpge){om = 0.001*omega[0];}
+	      // 	  else{
+	      // 	    dSpge = ySpge-spgeFirstNode;
+	      // 	    a = (y-spgeFirstNode)/dSpge;
+	      // 	    om = (1.-0.999*a*a)*omega[0];
+	      // 	  }
+	      // 	}
+	      // else{om = omega[0];}
+	      om = omega[0];
 
-		  velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], om);
-		  thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
-		    }
-		}
+	      velSites[x][y].collide(rho[x][y], T[x][y], u[x][y], om);
+	      thermalSites[x][y].collide(rho[x][y], T[x][y], u[x][y], omega[1]);
+	    }
 	}
+    }
 
-		  //update ghost nodes
-	for(int y=1; y<dims[1]-1; y++){
-	  for(int u=0; u<9; u++){
-	    velSites_[0][y].f[u]=velSites_[dims[0]-2][y].f[u];
-	    velSites_[dims[0]-1][y].f[u]=velSites_[1][y].f[u];
-	  }
-	}
+  //update ghost nodes
+  for(int y=1; y<dims[1]-1; y++){
+    for(int u=0; u<9; u++){
+      velSites[0][y].f[u]=velSites[dims[0]-2][y].f[u];
+      velSites[dims[0]-1][y].f[u]=velSites[1][y].f[u];
+    }
+    for(int k=0;k<4;k++)
+      {
+	thermalSites[0][y].f[k]=thermalSites[dims[0]-2][y].f[k];
+	thermalSites[dims[0]-1][y].f[k]=thermalSites[1][y].f[k];
+      }
+  }
 	
-	for (int x =1; x < dims[0]-1; x++) {
-	  for (int y = 1; y < dims[1]-1; y++) {
-	    if(velSites[x][y].isFluid())
-	      streamToNeighbors(x, y);
-	  }
-	}
+    for (int x =1; x < dims[0]-1; x++) {
+      for (int y = 1; y < dims[1]-1; y++) {
+	if(velSites[x][y].isFluid())
+	  streamToNeighbors(x, y);
+      }
+    }
+  
 
-// streaming of ghost nodes
-		for(int y = 1; y < dims[1]-1; y++) {
-			int x, k, nx, ny;
-			x=0;
+  // streaming of ghost nodes
+  for(int y = 1; y < dims[1]-1; y++) {
+    int x, k, nx, ny;
+    x=0;
 
-			k=1;
-			nx = x + VelSite::e[k][0];
-			ny = y + VelSite::e[k][1];
-			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+    k=1;
+    nx = x + VelSite::e[k][0];
+    ny = y + VelSite::e[k][1];
+    velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+    nx = x + ThermalSite::c[k][0];
+    ny = y + ThermalSite::c[k][1];
+    thermalSites_[nx][ny].f[k] = thermalSites[x][y].f[k];
 
-			k=5;
-			nx = x + VelSite::e[k][0];
-			ny = y + VelSite::e[k][1];
-			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+    k=5;
+    nx = x + VelSite::e[k][0];
+    ny = y + VelSite::e[k][1];
+    velSites_[nx][ny].f[k] = velSites[x][y].f[k];
 
-			k=8;
-			nx = x + VelSite::e[k][0];
-			ny = y + VelSite::e[k][1];
-			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
-
-
-			x=dims[0]-1;
-
-			k=3;
-			nx = x + VelSite::e[k][0];
-			ny = y + VelSite::e[k][1];
-			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
-
-			k=6;
-			nx = x + VelSite::e[k][0];
-			ny = y + VelSite::e[k][1];
-			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
-
-			k=7;
-			nx = x + VelSite::e[k][0];
-			ny = y + VelSite::e[k][1];
-			velSites_[nx][ny].f[k] = velSites[x][y].f[k];
-			}
+    k=8;
+    nx = x + VelSite::e[k][0];
+    ny = y + VelSite::e[k][1];
+    velSites_[nx][ny].f[k] = velSites[x][y].f[k];
 
 
-	BoundaryConditions();
+    x=dims[0]-1;
 
-	swapT = thermalSites;
-	thermalSites = thermalSites_;
-	thermalSites_ = swapT;
+    k=3;
+    nx = x + VelSite::e[k][0];
+    ny = y + VelSite::e[k][1];
+    velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+    nx = x + ThermalSite::c[k][0];
+    ny = y + ThermalSite::c[k][1];
+    thermalSites_[nx][ny].f[k] = thermalSites[x][y].f[k];
 
-	swapVel = velSites;
-	velSites = velSites_;
-	velSites_ = swapVel;
+    k=6;
+    nx = x + VelSite::e[k][0];
+    ny = y + VelSite::e[k][1];
+    velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+
+    k=7;
+    nx = x + VelSite::e[k][0];
+    ny = y + VelSite::e[k][1];
+    velSites_[nx][ny].f[k] = velSites[x][y].f[k];
+  }
+
+
+  BoundaryConditions();
+
+  swapT = thermalSites;
+  thermalSites = thermalSites_;
+  thermalSites_ = swapT;
+
+  swapVel = velSites;
+  velSites = velSites_;
+  velSites_ = swapVel;
+	
 }
 
 void LatticeBoltzmann::generateGeometry()

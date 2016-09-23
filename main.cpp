@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
   int N = 160000;
   int k = 0; int tt = 0;
   double d;
-
+  ofstream ff("ff.dat");
   for (int i=0;i<N;i++)
     {
       lb->update();
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
       	  cout << k << "%" << endl;
       	  k++;
       	}
-      if(i%100 == 0)
+      if(i%1000 == 0)
       	{
       	  write_fluid_vtk(tt, dims[0], dims[1], temp, velocity, folderName.c_str());
       	  tt++;

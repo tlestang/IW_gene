@@ -142,7 +142,7 @@ void VelSite::collide(double& rho, double& T, double u[2], double omega)
       F = rho*coef_force*T;
       //force = a * w[k] * (3.*(e[k][1]*F-u[1]*F) + 9.*eu*F);
       force =  3.*w[k]*rho*coef_force*T*e[k][1];
-      f[k]= f[k]*(1.-omega) +fEq(k,rho,u)*omega;// + force;	  
+      f[k]= f[k]*(1.-omega) +fEq(k,rho,u)*omega + force;	  
       // f[k] *= (1.0-omega);
       // f[k] += omega*fEq(k, rho, u);
     }
